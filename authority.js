@@ -451,5 +451,11 @@ document.addEventListener('DOMContentLoaded', () => {
   checkAuth();
   
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  setTimeout(hidePreloader, prefersReducedMotion ? 0 : 600);
+  if (!prefersReducedMotion) {
+    const statusText = document.getElementById('preloader-status-text');
+    setTimeout(() => { if (statusText) statusText.textContent = 'Connecting to Municipal Dispatch Desk…'; }, 1400);
+    setTimeout(() => { if (statusText) statusText.textContent = 'Synchronizing Active Field Units…'; }, 2900);
+    setTimeout(() => { if (statusText) statusText.textContent = 'Ready! Opening Operations Desk…'; }, 4400);
+  }
+  setTimeout(hidePreloader, prefersReducedMotion ? 0 : 5000);
 });

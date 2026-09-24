@@ -179,7 +179,7 @@ function createReport({ id, type, location, description, status, photo_url, phot
   return getReportById(reportId);
 }
 
-function updateReportStatus(id, newStatus, adminNote = null) {
+function updateReportStatus(id, newStatus, adminNote = null, uploadsDir = null) {
   const current = getReportById(id);
   if (!current) return null;
 
@@ -193,7 +193,7 @@ function updateReportStatus(id, newStatus, adminNote = null) {
   const statusMeta = {
     new: { title: 'Report Logged in Demo App', note: adminNote || 'Status reset in prototype database (Simulated)' },
     inprogress: { title: 'In-App Review / Simulated Dispatch', note: adminNote || 'Simulated status: marked in progress by prototype operator (No real crew dispatched)' },
-    resolved: { title: 'Marked Resolved in Demo', note: adminNote || 'Simulated status: marked resolved in prototype console (Simulated)' },
+    resolved: { title: 'Marked Resolved & Problem Photo Cleared', note: adminNote || 'Issue resolved and problem photo file permanently removed from storage' },
   };
 
   const meta = statusMeta[newStatus] || { title: `Status: ${newStatus}`, note: adminNote || 'Status updated in prototype' };
@@ -204,12 +204,23 @@ function updateReportStatus(id, newStatus, adminNote = null) {
     note: meta.note,
   });
 
+  // When a case is resolved, automatically delete the problem image from the uploads directory and clear DB photo reference
+  let photoUrl = current.photo_url;
+  let photoSizeKb = current.photo_size_kb;
+  if (newStatus === 'resolved' && current.photo_url) {
+    if (uploadsDir) {
+      deleteReportPhotoFile(current.photo_url, uploadsDir);
+    }
+    photoUrl = null;
+    photoSizeKb = null;
+  }
+
   const stmt = db.prepare(`
     UPDATE reports
-    SET status = ?, timeline = ?, updated_at = ?
+    SET status = ?, photo_url = ?, photo_size_kb = ?, timeline = ?, updated_at = ?
     WHERE id = ?
   `);
-  stmt.run(newStatus, JSON.stringify(timeline), now, id);
+  stmt.run(newStatus, photoUrl, photoSizeKb, JSON.stringify(timeline), now, id);
   return getReportById(id);
 }
 
@@ -256,23 +267,95 @@ function confirmReport(id, requestedStatus = null, note = null) {
   return getReportById(id);
 }
 
-function clearAllDemoReports() {
-  const stmt = db.prepare('DELETE FROM reports');
-  const result = stmt.run();
-  return result.changes;
+// Helper to remove photo file associated with a report
+function deleteReportPhotoFile(photoUrl, uploadsDir) {
+  if (!photoUrl || typeof photoUrl !== 'string') return false;
+  try {
+    const filename = path.basename(photoUrl);
+    if (filename && uploadsDir) {
+      const fullPath = path.join(uploadsDir, filename);
+      if (fs.existsSync(fullPath)) {
+        fs.unlinkSync(fullPath);
+        return true;
+      }
+    }
+  } catch (err) {
+    console.warn(`[DBMS] Could not remove photo file for ${photoUrl}:`, err.message);
+  }
+  return false;
 }
 
-function bulkUpdateStatus(ids, newStatus, note = 'Bulk status updated by administrator') {
+function clearAllDemoReports(uploadsDir = null) {
+  // First clean up all photo files associated with reports
+  let deletedPhotos = 0;
+  if (uploadsDir) {
+    const rows = db.prepare('SELECT photo_url FROM reports WHERE photo_url IS NOT NULL').all();
+    for (const r of rows) {
+      if (deleteReportPhotoFile(r.photo_url, uploadsDir)) {
+        deletedPhotos++;
+      }
+    }
+  }
+
+  const stmt = db.prepare('DELETE FROM reports');
+  const result = stmt.run();
+  return { deletedCount: result.changes, deletedPhotos };
+}
+
+function deleteResolvedReports(uploadsDir = null) {
+  const resolvedRows = db.prepare("SELECT id, photo_url FROM reports WHERE status = 'resolved'").all();
+  let deletedPhotos = 0;
+
+  if (uploadsDir && resolvedRows.length > 0) {
+    for (const r of resolvedRows) {
+      if (deleteReportPhotoFile(r.photo_url, uploadsDir)) {
+        deletedPhotos++;
+      }
+    }
+  }
+
+  const stmt = db.prepare("DELETE FROM reports WHERE status = 'resolved'");
+  const result = stmt.run();
+  return { deletedCount: result.changes, deletedPhotos };
+}
+
+function bulkUpdateStatus(ids, newStatus, note = 'Bulk status updated by administrator', uploadsDir = null) {
   if (!Array.isArray(ids) || ids.length === 0) return 0;
   let count = 0;
   for (const id of ids) {
-    const updated = updateReportStatus(id, newStatus, note);
+    const updated = updateReportStatus(id, newStatus, note, uploadsDir);
     if (updated) count++;
   }
   return count;
 }
 
-function deleteReport(id) {
+function deleteBulkReports(ids, uploadsDir = null) {
+  if (!Array.isArray(ids) || ids.length === 0) return { deletedCount: 0, deletedPhotos: 0 };
+  let deletedPhotos = 0;
+
+  if (uploadsDir) {
+    for (const id of ids) {
+      const report = getReportById(id);
+      if (report && deleteReportPhotoFile(report.photo_url, uploadsDir)) {
+        deletedPhotos++;
+      }
+    }
+  }
+
+  const placeholders = ids.map(() => '?').join(',');
+  const stmt = db.prepare(`DELETE FROM reports WHERE id IN (${placeholders})`);
+  const result = stmt.run(...ids);
+  return { deletedCount: result.changes, deletedPhotos };
+}
+
+function deleteReport(id, uploadsDir = null) {
+  const report = getReportById(id);
+  if (!report) return false;
+
+  if (uploadsDir) {
+    deleteReportPhotoFile(report.photo_url, uploadsDir);
+  }
+
   const stmt = db.prepare('DELETE FROM reports WHERE id = ?');
   const result = stmt.run(id);
   return result.changes > 0;
@@ -317,6 +400,10 @@ module.exports = {
   bulkUpdateStatus,
   confirmReport,
   deleteReport,
+  deleteResolvedReports,
+  deleteBulkReports,
   clearAllDemoReports,
+  deleteReportPhotoFile,
   getStats,
 };
+

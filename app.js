@@ -2176,7 +2176,14 @@ async function runBootSequence() {
   setPreloaderStatus(dict.preloader_connecting || 'Connecting to SQLite DBMS…');
 
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const minEntranceDelay = prefersReducedMotion ? 0 : 750;
+  const minEntranceDelay = prefersReducedMotion ? 0 : 5000;
+
+  if (!prefersReducedMotion) {
+    setTimeout(() => setPreloaderStatus(dict.preloader_loading_reports || 'Synchronizing neighbourhood waste reports…'), 1400);
+    setTimeout(() => setPreloaderStatus('Optimizing civic database & waste guide…'), 2900);
+    setTimeout(() => setPreloaderStatus('Ready! Launching CleanStreet…'), 4400);
+  }
+
   const timerPromise = new Promise(resolve => setTimeout(resolve, minEntranceDelay));
 
   try {
@@ -2187,8 +2194,6 @@ async function runBootSequence() {
     await Promise.race([backendPromise, timeoutPromise]).catch(err => {
       console.warn('Backend detection timeout/fallback:', err.message);
     });
-
-    setPreloaderStatus(dict.preloader_loading_reports || 'Loading community reports…');
 
     // 2. Load reports from SQLite or localStorage
     await Promise.race([

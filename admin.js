@@ -422,12 +422,14 @@ function updateBulkControls() {
   const countSpan = document.getElementById('bulk-selected-count');
   const confirmBtn = document.getElementById('btn-bulk-confirm-action');
   const resolveBtn = document.getElementById('btn-bulk-resolve-action');
+  const deleteBtn = document.getElementById('btn-bulk-delete-action');
   const selectAllChk = document.getElementById('bulk-select-all');
 
   const count = selectedReportIds.size;
   if (countSpan) countSpan.textContent = `(${count} selected)`;
   if (confirmBtn) confirmBtn.disabled = count === 0;
   if (resolveBtn) resolveBtn.disabled = count === 0;
+  if (deleteBtn) deleteBtn.disabled = count === 0;
 
   const filtered = getFilteredReports();
   if (selectAllChk) {
@@ -439,6 +441,8 @@ function initBulkActions() {
   const selectAllChk = document.getElementById('bulk-select-all');
   const confirmBtn = document.getElementById('btn-bulk-confirm-action');
   const resolveBtn = document.getElementById('btn-bulk-resolve-action');
+  const deleteBtn = document.getElementById('btn-bulk-delete-action');
+  const purgeResolvedBtn = document.getElementById('btn-admin-purge-resolved');
   const exportBtn = document.getElementById('btn-export-csv');
 
   selectAllChk?.addEventListener('change', (e) => {
@@ -515,6 +519,67 @@ function initBulkActions() {
     }
   });
 
+  // Bulk Delete Selected Reports & Their Images
+  deleteBtn?.addEventListener('click', async () => {
+    const ids = Array.from(selectedReportIds);
+    if (ids.length === 0) return;
+    if (!confirm(`Permanently delete ${ids.length} selected complaints?\n\nAll associated problem photos will be erased from storage and database.`)) {
+      return;
+    }
+
+    deleteBtn.disabled = true;
+    deleteBtn.textContent = 'Deleting…';
+
+    try {
+      const res = await fetch('/api/reports/bulk-delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        showToast(`Deleted ${data.deletedCount} reports and removed ${data.deletedPhotos} problem photos from storage.`, 'success');
+        selectedReportIds.clear();
+        await loadDashboard();
+      } else {
+        showToast(data.error || 'Bulk delete failed', 'error');
+      }
+    } catch (_) {
+      showToast('Network error during bulk delete', 'error');
+    } finally {
+      deleteBtn.disabled = false;
+      deleteBtn.innerHTML = '<span>🗑</span> Delete Selected';
+    }
+  });
+
+  // Remove All Solved / Resolved Reports & Their Images
+  purgeResolvedBtn?.addEventListener('click', async () => {
+    const confirmed = window.confirm(
+      '🧹 REMOVE ALL SOLVED REPORTS\n\nAre you sure you want to delete all Resolved complaints?\n\nAll problem photos associated with resolved reports will be permanently deleted from the database and storage.'
+    );
+    if (!confirmed) return;
+
+    purgeResolvedBtn.disabled = true;
+    purgeResolvedBtn.textContent = 'Cleaning…';
+
+    try {
+      const res = await fetch('/api/reports/delete-resolved', { method: 'POST' });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        showToast(`Cleaned! Removed ${data.deletedCount} solved reports and deleted ${data.deletedPhotos} photo files from storage.`, 'success');
+        selectedReportIds.clear();
+        await loadDashboard();
+      } else {
+        showToast(data.error || 'Failed to remove solved reports', 'error');
+      }
+    } catch (err) {
+      showToast('Network error while removing solved reports', 'error');
+    } finally {
+      purgeResolvedBtn.disabled = false;
+      purgeResolvedBtn.innerHTML = '<span>🧹</span> Remove Solved Reports (Delete Images)';
+    }
+  });
+
   exportBtn?.addEventListener('click', () => {
     window.location.href = '/api/reports/export/csv';
     showToast('Generating official CSV export…', 'success');
@@ -523,7 +588,7 @@ function initBulkActions() {
   const purgeBtn = document.getElementById('btn-admin-purge-all');
   purgeBtn?.addEventListener('click', async () => {
     const confirmed = window.confirm(
-      '⚠️ PERMANENT DATABASE PURGE\n\nAre you sure you want to delete ALL reports from the entire system?\n\nThis will remove all complaints from the SQLite database, and the public user page will show an empty/blank report sheet.'
+      '⚠️ PERMANENT DATABASE PURGE\n\nAre you sure you want to delete ALL reports from the entire system?\n\nThis will remove all complaints and erase all problem photo files from the storage and SQLite database.'
     );
     if (!confirmed) return;
 
@@ -534,7 +599,7 @@ function initBulkActions() {
       const res = await fetch('/api/reports/reset', { method: 'POST' });
       const data = await res.json();
       if (res.ok && data.success) {
-        showToast(`Database purged! Removed ${data.deletedCount} reports from system and user page.`, 'success');
+        showToast(`Database purged! Removed ${data.deletedCount} reports and deleted ${data.deletedPhotos} image files.`, 'success');
         selectedReportIds.clear();
         await loadDashboard();
       } else {
@@ -549,133 +614,6 @@ function initBulkActions() {
   });
 }
 
-// ====================================================
-// GOOGLE FORM SETTINGS CONTROLLER
-// ====================================================
-
-async function loadGoogleFormSettings() {
-  const badge = document.getElementById('gf-status-badge');
-  const text = document.getElementById('gf-status-text');
-  try {
-    const res = await fetch('/api/google-form/config');
-    if (res.ok) {
-      const cfg = await res.json();
-      document.getElementById('gf-url').value = cfg.formUrl || '';
-      document.getElementById('gf-entry-type').value = cfg.entryIssueType || '';
-      document.getElementById('gf-entry-loc').value = cfg.entryLocation || '';
-      document.getElementById('gf-entry-desc').value = cfg.entryDescription || '';
-      document.getElementById('gf-entry-photo').value = cfg.entryPhoto || '';
-
-      if (cfg.enabled && cfg.formUrl) {
-        badge.className = 'gf-status-badge gf-status-configured';
-        text.textContent = 'Active (Forwarding)';
-      } else {
-        badge.className = 'gf-status-badge gf-status-disabled';
-        text.textContent = 'Not Configured';
-      }
-    }
-  } catch (err) {
-    badge.className = 'gf-status-badge gf-status-disabled';
-    text.textContent = 'Sync Offline';
-  }
-}
-
-function initGoogleFormControls() {
-  const form = document.getElementById('google-form-settings');
-  const autoDetectBtn = document.getElementById('gf-auto-detect-btn');
-  const testBtn = document.getElementById('gf-test-btn');
-  const saveBtn = document.getElementById('gf-save-btn');
-
-  autoDetectBtn?.addEventListener('click', async () => {
-    const url = document.getElementById('gf-url').value.trim();
-    if (!url) {
-      showToast('Please enter a Google Form URL first', 'error');
-      return;
-    }
-    autoDetectBtn.disabled = true;
-    autoDetectBtn.textContent = 'Inspecting…';
-
-    try {
-      const res = await fetch('/api/google-form/discover', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ formUrl: url }),
-      });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        if (data.matchedEntries) {
-          if (data.matchedEntries.type) document.getElementById('gf-entry-type').value = data.matchedEntries.type;
-          if (data.matchedEntries.location) document.getElementById('gf-entry-loc').value = data.matchedEntries.location;
-          if (data.matchedEntries.description) document.getElementById('gf-entry-desc').value = data.matchedEntries.description;
-          if (data.matchedEntries.photo) document.getElementById('gf-entry-photo').value = data.matchedEntries.photo;
-        }
-        showToast(`Auto-detected ${data.fields?.length || 0} fields!`, 'success');
-      } else {
-        showToast(data.error || 'Failed to detect fields', 'error');
-      }
-    } catch (_) {
-      showToast('Error during auto-discovery', 'error');
-    } finally {
-      autoDetectBtn.disabled = false;
-      autoDetectBtn.textContent = '⚡ Auto-Detect Fields';
-    }
-  });
-
-  form?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    saveBtn.disabled = true;
-    saveBtn.textContent = 'Saving…';
-
-    const payload = {
-      enabled: Boolean(document.getElementById('gf-url').value.trim()),
-      formUrl: document.getElementById('gf-url').value.trim(),
-      entryIssueType: document.getElementById('gf-entry-type').value.trim(),
-      entryLocation: document.getElementById('gf-entry-loc').value.trim(),
-      entryDescription: document.getElementById('gf-entry-desc').value.trim(),
-      entryPhoto: document.getElementById('gf-entry-photo').value.trim(),
-    };
-
-    try {
-      const res = await fetch('/api/google-form/config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        showToast('Google Form settings saved!', 'success');
-        loadGoogleFormSettings();
-      } else {
-        showToast(data.error || 'Failed to save settings', 'error');
-      }
-    } catch (_) {
-      showToast('Network error saving settings', 'error');
-    } finally {
-      saveBtn.disabled = false;
-      saveBtn.textContent = '💾 Save Configuration';
-    }
-  });
-
-  testBtn?.addEventListener('click', async () => {
-    testBtn.disabled = true;
-    testBtn.textContent = 'Sending…';
-
-    try {
-      const res = await fetch('/api/google-form/test', { method: 'POST' });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        showToast('Test payload successfully sent to Google Form / Sheets!', 'success');
-      } else {
-        showToast(data.error || 'Test transmission failed', 'error');
-      }
-    } catch (_) {
-      showToast('Network error during test', 'error');
-    } finally {
-      testBtn.disabled = false;
-      testBtn.textContent = '🧪 Send Test Entry';
-    }
-  });
-}
 
 // Helpers
 function statusBadgeHtml(status) {
@@ -769,5 +707,11 @@ document.addEventListener('DOMContentLoaded', () => {
   checkAuth();
 
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  setTimeout(hidePreloader, prefersReducedMotion ? 0 : 600);
+  if (!prefersReducedMotion) {
+    const statusText = document.getElementById('preloader-status-text');
+    setTimeout(() => { if (statusText) statusText.textContent = 'Verifying Administrative Credentials…'; }, 1400);
+    setTimeout(() => { if (statusText) statusText.textContent = 'Loading Central Database Management Engine…'; }, 2900);
+    setTimeout(() => { if (statusText) statusText.textContent = 'Ready! Launching Admin Console…'; }, 4400);
+  }
+  setTimeout(hidePreloader, prefersReducedMotion ? 0 : 5000);
 });

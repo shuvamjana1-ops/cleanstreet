@@ -2112,6 +2112,11 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   min-height: 1.25rem;
 }
 
+.preloader-loader-state[hidden],
+.preloader-error-state[hidden] {
+  display: none !important;
+}
+
 /* Error State */
 .preloader-error-state {
   display: flex;

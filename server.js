@@ -222,7 +222,7 @@ app.post('/api/reports/bulk-status', (req, res) => {
     if (!allowed.includes(status)) {
       return res.status(400).json({ success: false, error: `Invalid status. Allowed: ${allowed.join(', ')}` });
     }
-    const updatedCount = db.bulkUpdateStatus(ids, status, note);
+    const updatedCount = db.bulkUpdateStatus(ids, status, note, UPLOADS_DIR);
     res.json({
       success: true,
       message: `Successfully updated ${updatedCount} reports to "${status}".`,
@@ -269,14 +269,16 @@ app.patch('/api/reports/:id/status', (req, res) => {
       });
     }
 
-    const updated = db.updateReportStatus(req.params.id, status, note);
+    const updated = db.updateReportStatus(req.params.id, status, note, UPLOADS_DIR);
     if (!updated) {
       return res.status(404).json({ success: false, error: 'Report not found' });
     }
 
     res.json({
       success: true,
-      message: `Status updated to "${status}" in SQLite database.`,
+      message: status === 'resolved'
+        ? 'Status updated to "resolved" and problem photo file permanently removed from uploads folder.'
+        : `Status updated to "${status}" in SQLite database.`,
       report: updated,
     });
   } catch (err) {
@@ -284,24 +286,77 @@ app.patch('/api/reports/:id/status', (req, res) => {
   }
 });
 
-// 7. Delete report
+// 7. Delete report (and safely erase associated photo file from storage)
 app.delete('/api/reports/:id', (req, res) => {
   try {
-    const success = db.deleteReport(req.params.id);
+    const success = db.deleteReport(req.params.id, UPLOADS_DIR);
     if (!success) {
       return res.status(404).json({ success: false, error: 'Report not found' });
     }
-    res.json({ success: true, message: 'Report deleted from SQLite.' });
+    res.json({ success: true, message: 'Report and problem photo deleted from database and storage.' });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
-// 7b. Reset / Clear all demo reports
+// 7b. Delete all solved/resolved reports and permanently erase their problem photos
+app.post('/api/reports/delete-resolved', (req, res) => {
+  try {
+    const { deletedCount, deletedPhotos } = db.deleteResolvedReports(UPLOADS_DIR);
+    res.json({
+      success: true,
+      message: `Successfully removed ${deletedCount} solved reports and deleted ${deletedPhotos} associated image files from database & storage.`,
+      deletedCount,
+      deletedPhotos,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.delete('/api/reports/resolved', (req, res) => {
+  try {
+    const { deletedCount, deletedPhotos } = db.deleteResolvedReports(UPLOADS_DIR);
+    res.json({
+      success: true,
+      message: `Successfully removed ${deletedCount} solved reports and deleted ${deletedPhotos} associated image files from database & storage.`,
+      deletedCount,
+      deletedPhotos,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 7c. Bulk Delete reports
+app.post('/api/reports/bulk-delete', (req, res) => {
+  try {
+    const { ids } = req.body || {};
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ success: false, error: 'Array of report IDs is required' });
+    }
+    const { deletedCount, deletedPhotos } = db.deleteBulkReports(ids, UPLOADS_DIR);
+    res.json({
+      success: true,
+      message: `Successfully deleted ${deletedCount} reports and ${deletedPhotos} photo files.`,
+      deletedCount,
+      deletedPhotos,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 7d. Reset / Clear all demo reports and all associated uploaded photos
 app.post('/api/reports/reset', (req, res) => {
   try {
-    const deletedCount = db.clearAllDemoReports();
-    res.json({ success: true, message: `Reset complete. Removed ${deletedCount} demo reports.`, deletedCount });
+    const { deletedCount, deletedPhotos } = db.clearAllDemoReports(UPLOADS_DIR);
+    res.json({
+      success: true,
+      message: `Reset complete. Removed ${deletedCount} reports and deleted ${deletedPhotos} image files.`,
+      deletedCount,
+      deletedPhotos,
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }

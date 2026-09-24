@@ -113,9 +113,11 @@ The server will start on `http://localhost:3000`, automatically initialize `clea
 | `POST` | `/api/reports` | Submit a new waste complaint (supports multipart and base64) |
 | `POST` | `/api/reports/:id/confirm` | Upvote / confirm an issue and advance status to In Progress |
 | `PATCH` | `/api/reports/:id/status` | Update complaint status and append an audit timeline log |
-| `DELETE`| `/api/reports/:id` | Permanently remove an individual complaint |
+| `DELETE`| `/api/reports/:id` | Permanently remove an individual complaint and its problem photo from storage |
+| `POST` | `/api/reports/delete-resolved` | Purge all solved/resolved complaints and delete all associated photo files from storage |
+| `POST` | `/api/reports/bulk-delete` | Bulk delete selected complaints and their associated photo files from storage |
 | `POST` | `/api/reports/bulk-status` | Bulk update status for multiple selected reports |
-| `POST` | `/api/reports/reset` | Purge all complaints from SQLite DBMS (Admin only) |
+| `POST` | `/api/reports/reset` | Purge all complaints and erase all photo files from storage & database (Admin only) |
 | `GET` | `/api/reports/export/csv` | Download official municipal CSV export of all reports |
 
 ---
