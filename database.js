@@ -57,134 +57,13 @@ function initSchema() {
   } catch (_) {}
 }
 
-// Seed initial realistic data if database is empty
-const SEED_DATA = [
-  {
-    id: 'seed-001',
-    type: 'overflow',
-    location: 'Gulab Chowk, Andheri West, Mumbai',
-    description: 'The municipal dustbin near the pharmacy has been overflowing for two days. Garbage is spilling onto the footpath.',
-    status: 'inprogress',
-    photo_url: null,
-    photo_size_kb: null,
-    confirmations: 4,
-    timeline: JSON.stringify([
-      { status: 'new', title: 'Report Submitted', time: new Date(Date.now() - 48 * 3600 * 1000).toISOString(), note: 'Logged by resident with photo proof (Simulated)' },
-      { status: 'inprogress', title: 'Assigned to Ward Crew', time: new Date(Date.now() - 24 * 3600 * 1000).toISOString(), note: 'Ward 58 sanitation vehicle dispatched (Demo update)' },
-    ]),
-    created_at: new Date(Date.now() - 48 * 3600 * 1000).toISOString(),
-    updated_at: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
-  },
-  {
-    id: 'seed-002',
-    type: 'missed',
-    location: 'Lane 4, Sector 18, Noida, UP',
-    description: 'Garbage collection truck has not come to our lane for 3 consecutive days. Bags are piling up outside homes.',
-    status: 'new',
-    photo_url: null,
-    photo_size_kb: null,
-    confirmations: 6,
-    timeline: JSON.stringify([
-      { status: 'new', title: 'Report Submitted', time: new Date(Date.now() - 24 * 3600 * 1000).toISOString(), note: 'Logged by local residents association (Simulated)' }
-    ]),
-    created_at: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
-    updated_at: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
-  },
-  {
-    id: 'seed-003',
-    type: 'dumping',
-    location: 'Near Kalyani Nagar flyover, Pune',
-    description: 'Construction debris and household waste dumped under the flyover. Creating a health hazard.',
-    status: 'resolved',
-    photo_url: null,
-    photo_size_kb: null,
-    confirmations: 8,
-    timeline: JSON.stringify([
-      { status: 'new', title: 'Report Submitted', time: new Date(Date.now() - 120 * 3600 * 1000).toISOString(), note: 'Logged by daily commuter (Simulated)' },
-      { status: 'inprogress', title: 'Cleanup Dispatched', time: new Date(Date.now() - 72 * 3600 * 1000).toISOString(), note: 'Bulldozer & tipper assigned to debris site (Demo update)' },
-      { status: 'resolved', title: 'Debris Cleared', time: new Date(Date.now() - 24 * 3600 * 1000).toISOString(), note: 'Debris cleared and barrier placed (Demo update)' },
-    ]),
-    created_at: new Date(Date.now() - 120 * 3600 * 1000).toISOString(),
-    updated_at: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
-  },
-  {
-    id: 'seed-004',
-    type: 'drain',
-    location: 'Main Road, Koramangala 5th Block, Bengaluru',
-    description: 'Roadside nala (drain) is blocked with plastic bags after yesterday\'s rain. Water is pooling on the road.',
-    status: 'new',
-    photo_url: null,
-    photo_size_kb: null,
-    confirmations: 3,
-    timeline: JSON.stringify([
-      { status: 'new', title: 'Report Submitted', time: new Date(Date.now() - 8 * 3600 * 1000).toISOString(), note: 'Logged with geolocation tag (Simulated)' }
-    ]),
-    created_at: new Date(Date.now() - 8 * 3600 * 1000).toISOString(),
-    updated_at: new Date(Date.now() - 8 * 3600 * 1000).toISOString(),
-  },
-  {
-    id: 'seed-005',
-    type: 'overflow',
-    location: 'Civil Lines Market, Delhi',
-    description: 'Three bins near the vegetable market are overflowing every evening. The smell is affecting nearby shops.',
-    status: 'resolved',
-    photo_url: null,
-    photo_size_kb: null,
-    confirmations: 12,
-    timeline: JSON.stringify([
-      { status: 'new', title: 'Report Submitted', time: new Date(Date.now() - 192 * 3600 * 1000).toISOString(), note: 'Logged by Market Welfare Association (Simulated)' },
-      { status: 'inprogress', title: 'Special Clearance Scheduled', time: new Date(Date.now() - 120 * 3600 * 1000).toISOString(), note: 'Evening shift compactor vehicle assigned (Demo update)' },
-      { status: 'resolved', title: 'Bins Emptied & Sanitized', time: new Date(Date.now() - 48 * 3600 * 1000).toISOString(), note: 'Bins cleaned with disinfectant spray (Demo update)' },
-    ]),
-    created_at: new Date(Date.now() - 192 * 3600 * 1000).toISOString(),
-    updated_at: new Date(Date.now() - 48 * 3600 * 1000).toISOString(),
-  },
-  {
-    id: 'seed-006',
-    type: 'other',
-    location: 'New Alipore, Block C, Kolkata',
-    description: 'Residents are burning plastic waste in the open lot on Sunday evenings. Smoke is causing respiratory issues.',
-    status: 'inprogress',
-    photo_url: null,
-    photo_size_kb: null,
-    confirmations: 5,
-    timeline: JSON.stringify([
-      { status: 'new', title: 'Report Submitted', time: new Date(Date.now() - 72 * 3600 * 1000).toISOString(), note: 'Logged by neighbourhood resident (Simulated)' },
-      { status: 'inprogress', title: 'Inspection Notice Issued', time: new Date(Date.now() - 24 * 3600 * 1000).toISOString(), note: 'Sanitation inspector visited lot (Demo update)' },
-    ]),
-    created_at: new Date(Date.now() - 72 * 3600 * 1000).toISOString(),
-    updated_at: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
-  },
-];
+// Blank report sheet mode: No demo reports seeded
+const SEED_DATA = [];
 
 function seedIfEmpty() {
-  const countRow = db.prepare('SELECT COUNT(*) AS count FROM reports').get();
-  if (countRow && countRow.count === 0) {
-    const insertStmt = db.prepare(`
-      INSERT INTO reports (id, type, location, description, status, photo_url, photo_size_kb, confirmations, timeline, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `);
-    for (const item of SEED_DATA) {
-      insertStmt.run(
-        item.id,
-        item.type,
-        item.location,
-        item.description,
-        item.status,
-        item.photo_url,
-        item.photo_size_kb,
-        item.confirmations || 0,
-        item.timeline || null,
-        item.created_at,
-        item.updated_at
-      );
-    }
-    console.log(`[DBMS] Seeded ${SEED_DATA.length} initial reports into SQLite.`);
-  } else {
-    // Backfill any null timelines or confirmations for existing database rows
-    backfillExistingRows();
-  }
+  // Kept empty so the application starts with a clean, blank report sheet.
 }
+
 
 function backfillExistingRows() {
   const rows = db.prepare('SELECT id, status, created_at, confirmations, timeline FROM reports').all();
@@ -272,9 +151,9 @@ function createReport({ id, type, location, description, status, photo_url, phot
   const initialTimeline = [
     {
       status: 'new',
-      title: 'Report Submitted',
+      title: 'Report Logged in Demo App',
       time: now,
-      note: 'Logged by resident with verified photo proof (Simulated)',
+      note: 'Recorded in prototype database. No municipal agency has been dispatched.',
     }
   ];
 
@@ -312,12 +191,12 @@ function updateReportStatus(id, newStatus, adminNote = null) {
   if (!Array.isArray(timeline)) timeline = [];
 
   const statusMeta = {
-    new: { title: 'Report Submitted', note: 'Status reopened by supervisor (Demo update)' },
-    inprogress: { title: 'Assigned to Ward Crew', note: adminNote || 'Zonal sanitation team dispatched for ground action (Demo update)' },
-    resolved: { title: 'Resolved & Cleared', note: adminNote || 'Waste collected, bin sanitized, issue resolved (Demo update)' },
+    new: { title: 'Report Logged in Demo App', note: adminNote || 'Status reset in prototype database (Simulated)' },
+    inprogress: { title: 'In-App Review / Simulated Dispatch', note: adminNote || 'Simulated status: marked in progress by prototype operator (No real crew dispatched)' },
+    resolved: { title: 'Marked Resolved in Demo', note: adminNote || 'Simulated status: marked resolved in prototype console (Simulated)' },
   };
 
-  const meta = statusMeta[newStatus] || { title: `Status: ${newStatus}`, note: adminNote || 'Status updated' };
+  const meta = statusMeta[newStatus] || { title: `Status: ${newStatus}`, note: adminNote || 'Status updated in prototype' };
   timeline.push({
     status: newStatus,
     title: meta.title,
@@ -334,16 +213,63 @@ function updateReportStatus(id, newStatus, adminNote = null) {
   return getReportById(id);
 }
 
-function confirmReport(id) {
+function confirmReport(id, requestedStatus = null, note = null) {
+  const current = getReportById(id);
+  if (!current) return null;
+
+  const now = new Date().toISOString();
+  let timeline = [];
+  try {
+    timeline = JSON.parse(current.timeline || '[]');
+  } catch (_) {}
+  if (!Array.isArray(timeline)) timeline = [];
+
+  // When confirmed, tracking status changes!
+  // If status is 'new', advance it to 'inprogress' (Confirmed / Under Review in Demo)
+  // If status is 'resolved', re-open to 'inprogress'
+  let newStatus = requestedStatus;
+  if (!newStatus) {
+    if (current.status === 'new' || current.status === 'resolved') {
+      newStatus = 'inprogress';
+    } else {
+      newStatus = current.status;
+    }
+  }
+
+  const newConfirmations = (current.confirmations || 0) + 1;
+  const statusLabel = newStatus === 'inprogress' ? 'In Progress (Simulated Review)' : (newStatus === 'resolved' ? 'Resolved (Demo)' : 'New (Demo)');
+  const confirmNote = note || `In-app community confirmation recorded (${newConfirmations} confirmations). Tracking status changed to ${statusLabel}.`;
+
+  timeline.push({
+    status: newStatus,
+    title: 'In-App Community Confirmation',
+    time: now,
+    note: confirmNote,
+  });
+
   const stmt = db.prepare(`
     UPDATE reports
-    SET confirmations = confirmations + 1, updated_at = ?
+    SET confirmations = ?, status = ?, timeline = ?, updated_at = ?
     WHERE id = ?
   `);
-  const now = new Date().toISOString();
-  const result = stmt.run(now, id);
-  if (result.changes === 0) return null;
+  stmt.run(newConfirmations, newStatus, JSON.stringify(timeline), now, id);
   return getReportById(id);
+}
+
+function clearAllDemoReports() {
+  const stmt = db.prepare('DELETE FROM reports');
+  const result = stmt.run();
+  return result.changes;
+}
+
+function bulkUpdateStatus(ids, newStatus, note = 'Bulk status updated by administrator') {
+  if (!Array.isArray(ids) || ids.length === 0) return 0;
+  let count = 0;
+  for (const id of ids) {
+    const updated = updateReportStatus(id, newStatus, note);
+    if (updated) count++;
+  }
+  return count;
 }
 
 function deleteReport(id) {
@@ -388,7 +314,9 @@ module.exports = {
   getReportById,
   createReport,
   updateReportStatus,
+  bulkUpdateStatus,
   confirmReport,
   deleteReport,
+  clearAllDemoReports,
   getStats,
 };

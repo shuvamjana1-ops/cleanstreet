@@ -1,0 +1,578 @@
+[
+  {
+    "id": "TC001",
+    "title": "Submit a waste issue report and review the confirmation",
+    "description": "A resident can complete the report form with the required details and see a confirmation summary after submission.",
+    "category": "Submit Waste Issue Report",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /#report"
+      },
+      {
+        "type": "action",
+        "description": "Select an issue type"
+      },
+      {
+        "type": "action",
+        "description": "Fill in a location or locality"
+      },
+      {
+        "type": "action",
+        "description": "Fill in an optional description"
+      },
+      {
+        "type": "action",
+        "description": "Submit the report form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a confirmation summary is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the submitted report details are shown"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC002",
+    "title": "Submit a waste issue report with required details",
+    "description": "Verifies that a resident can complete the report form with the required details and see a confirmation summary after submission.",
+    "category": "Submit Waste Issue Report",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /#report"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the report category"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the report location"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the report description"
+      },
+      {
+        "type": "action",
+        "description": "Submit the report form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a confirmation summary is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the submitted report details are shown in the confirmation"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC003",
+    "title": "Inspect a community report and upvote it",
+    "description": "Verifies that a user can open a report card in the reports list and successfully increase its support count by upvoting it.",
+    "category": "Browse Community Reports",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /#reports"
+      },
+      {
+        "type": "action",
+        "description": "Open a report card"
+      },
+      {
+        "type": "action",
+        "description": "Upvote the report"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the report support count increases"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated vote state is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC004",
+    "title": "Use skip-to-content to reach the main page content",
+    "description": "Verifies that a keyboard user can activate the skip link from the top of the home page and move focus to the main content area.",
+    "category": "Multi-Language and Accessibility Navigation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /#home"
+      },
+      {
+        "type": "action",
+        "description": "Press Tab"
+      },
+      {
+        "type": "action",
+        "description": "Press Enter"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify focus moves to the main content area"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC005",
+    "title": "Navigate the app using skip-to-content and primary navigation",
+    "description": "A keyboard-only user can use the skip link and primary navigation to move between core sections without losing context.",
+    "category": "App Navigation and Language Switching",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /#home"
+      },
+      {
+        "type": "action",
+        "description": "Activate the skip-to-content link"
+      },
+      {
+        "type": "action",
+        "description": "Use primary navigation to open the reports view"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the reports view is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify focus is placed in the main content region"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC006",
+    "title": "Open the mobile navigation drawer and move to another section",
+    "description": "Verifies that a user can open the navigation drawer from the home view and use it to reach another main section without losing context.",
+    "category": "Multi-Language and Accessibility Navigation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /#home"
+      },
+      {
+        "type": "action",
+        "description": "Open the navigation drawer"
+      },
+      {
+        "type": "action",
+        "description": "Choose the reports destination from the drawer"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the reports view is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC007",
+    "title": "Browse and filter community reports by status, type, and locality",
+    "description": "A community member can narrow the report list using the available filters and see matching reports.",
+    "category": "Filter and Browse Community Reports",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /#reports"
+      },
+      {
+        "type": "action",
+        "description": "Select a status filter"
+      },
+      {
+        "type": "action",
+        "description": "Select an issue type filter"
+      },
+      {
+        "type": "action",
+        "description": "Choose a locality chip"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify matching reports are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the report list reflects the selected filters"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC008",
+    "title": "Submit a report with an optional photo",
+    "description": "Verifies that a resident can attach a photo while submitting a report and still receive a successful confirmation summary.",
+    "category": "Submit Waste Issue Report",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /#report"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the report category"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the report location"
+      },
+      {
+        "type": "action",
+        "description": "Attach a valid photo to the report"
+      },
+      {
+        "type": "action",
+        "description": "Submit the report form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a confirmation summary is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the attached photo is reflected in the submission confirmation"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC009",
+    "title": "Find disposal guidance by searching for a household item",
+    "description": "A user can search the waste-sorting guide and see matching disposal guidance for the item entered.",
+    "category": "Interactive Waste Sorting Guide and Search",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /#guide"
+      },
+      {
+        "type": "action",
+        "description": "Type a household item into the search field"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify matching guidance is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the quick reference table includes relevant disposal guidance"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC010",
+    "title": "Block report submission when required details are missing",
+    "description": "A resident sees validation guidance when attempting to submit the report form without completing required fields.",
+    "category": "Submit Waste Issue Report",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /#report"
+      },
+      {
+        "type": "action",
+        "description": "Submit the report form without filling required details"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify validation guidance is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the report is not submitted"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC011",
+    "title": "Search the waste-sorting guide and filter by waste category",
+    "description": "Verifies that a user can search for a household item in the guide, narrow results by waste category, and find the correct disposal guidance.",
+    "category": "Waste Sorting Guide Search and Filters",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /#guide"
+      },
+      {
+        "type": "action",
+        "description": "Search for a household item"
+      },
+      {
+        "type": "action",
+        "description": "Select a waste category filter"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify matching guidance results are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the quick reference table shows relevant disposal guidance"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC012",
+    "title": "Switch to Hindi and back on the home view",
+    "description": "Verifies that a user can switch the interface language to Hindi on the home view and return to English without losing the current page.",
+    "category": "Multi-Language and Accessibility Navigation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /#home"
+      },
+      {
+        "type": "action",
+        "description": "Click the language switch control for Hindi"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the interface is shown in Hindi"
+      },
+      {
+        "type": "action",
+        "description": "Click the language switch control for English"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the interface returns to English"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC013",
+    "title": "Switch language while staying on the current view",
+    "description": "A user can change the interface language and remain on the same page content while the labels update accordingly.",
+    "category": "App Navigation and Language Switching",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /#home"
+      },
+      {
+        "type": "action",
+        "description": "Switch the interface language"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the visible interface language changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the current view remains displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC014",
+    "title": "Filter the waste guide by category",
+    "description": "A user can switch between waste categories and see the guide update to the selected category.",
+    "category": "Interactive Waste Sorting Guide and Search",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /#guide"
+      },
+      {
+        "type": "action",
+        "description": "Select a waste category filter"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the guide updates to the selected category"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify category-specific items are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC015",
+    "title": "Change a report status from the admin panel",
+    "description": "Verifies that a demo admin can update a report status and see the change confirmed in the interface.",
+    "category": "Admin Status Workflow Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /#admin"
+      },
+      {
+        "type": "action",
+        "description": "Select a report status from the dropdown"
+      },
+      {
+        "type": "action",
+        "description": "Confirm the status change"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a status update confirmation is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the report shows the new status"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC016",
+    "title": "Show a helpful empty state when report filters match nothing",
+    "description": "A community member sees guidance when the selected filters produce no matching reports.",
+    "category": "Filter and Browse Community Reports",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /#reports"
+      },
+      {
+        "type": "action",
+        "description": "Apply filters that produce no matches"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an empty state message is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the report list is empty"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC017",
+    "title": "Delete a report from the admin panel",
+    "description": "Verifies that a demo admin can remove a report from the admin list and see it disappear from the interface.",
+    "category": "Admin Status Workflow Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /#admin"
+      },
+      {
+        "type": "action",
+        "description": "Delete a report"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the report is removed from the list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a deletion confirmation is visible"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC018",
+    "title": "Clear guide search and filters after narrowing results",
+    "description": "Verifies that a user can reset the guide view after searching and filtering so the full guidance list becomes available again.",
+    "category": "Waste Sorting Guide Search and Filters",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /#guide"
+      },
+      {
+        "type": "action",
+        "description": "Search for a household item"
+      },
+      {
+        "type": "action",
+        "description": "Select a waste category filter"
+      },
+      {
+        "type": "action",
+        "description": "Clear the search and filters"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the guide results return to the default state"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the filter controls are reset"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC019",
+    "title": "Recover from a no-results search in the waste guide",
+    "description": "A user sees a no-results state for an unmatched search and can clear it to return to the full guide.",
+    "category": "Interactive Waste Sorting Guide and Search",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /#guide"
+      },
+      {
+        "type": "action",
+        "description": "Type an unmatched search term into the search field"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a no-results state is displayed"
+      },
+      {
+        "type": "action",
+        "description": "Clear the search"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify guide items are displayed again"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC020",
+    "title": "Show validation errors when required report fields are missing",
+    "description": "Verifies that the report form blocks submission and shows validation feedback when required fields are omitted.",
+    "category": "Submit Waste Issue Report",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /#report"
+      },
+      {
+        "type": "action",
+        "description": "Submit the report form without filling required fields"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify validation errors are visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the report is not submitted"
+      }
+    ],
+    "priority": "Low"
+  }
+]

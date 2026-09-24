@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CleanStreet — Municipal Authority &amp; Field Operations Desk</title>
+  <link rel="icon" href="icon.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body class="admin-body">
+
+  <!-- ===== ACCESSIBLE APPLICATION PRELOADER ===== -->
+  <div id="app-preloader" class="app-preloader" role="status" aria-live="polite" aria-label="Loading CleanStreet Field Operations">
+    <div class="preloader-card">
+      <div class="preloader-brand">
+        <div class="preloader-leaf-wrap" aria-hidden="true">
+          <svg class="preloader-leaf-svg" viewBox="0 0 48 48" width="48" height="48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="24" cy="24" r="21" class="preloader-ring-bg" />
+            <circle cx="24" cy="24" r="21" class="preloader-ring-pulse" />
+            <path d="M24 10C24 10 14 16 14 26C14 31.5228 18.4772 36 24 36C29.5228 36 34 31.5228 34 26C34 16 24 10 24 10Z" fill="var(--primary, #002d17)" opacity="0.12"/>
+            <path d="M24 12C24 12 16 17.5 16 25.5C16 29.9183 19.5817 33.5 24 33.5C28.4183 33.5 32 29.9183 32 25.5C32 17.5 24 12 24 12Z" fill="var(--secondary, #006c49)"/>
+            <path d="M24 33.5V17C24 17 21 21 19 23M24 24C26.5 22.5 29 22 29 22" stroke="#ffffff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="preloader-brand-text">
+          <span class="preloader-title">CleanStreet</span>
+          <span class="preloader-subtitle">Field Operations Desk</span>
+        </div>
+      </div>
+      <div class="preloader-loader-state" id="preloader-loading-state">
+        <div class="preloader-track" aria-hidden="true">
+          <div class="preloader-bar"></div>
+        </div>
+        <p class="preloader-status-msg" id="preloader-status-text">Loading Operations Desk…</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== AUTHORITY ACCESS GATE MODAL ==================== -->
+  <div id="auth-gate-modal" class="auth-gate-modal" role="dialog" aria-modal="true" aria-labelledby="gate-title">
+    <div class="auth-gate-card">
+      <div class="auth-gate-icon" aria-hidden="true">🛡️</div>
+      <h1 id="gate-title" class="auth-gate-title">Authority Portal Login</h1>
+      <p class="auth-gate-sub">This operations desk is restricted to municipal field supervisors, ward sanitary inspectors, and crew dispatchers.</p>
+      
+      <form id="auth-gate-form" class="auth-gate-form" novalidate>
+        <label for="auth-passcode" class="sr-only">Enter Authority Passcode</label>
+        <input type="password" id="auth-passcode" class="auth-passcode-input" placeholder="••••••••" required autocomplete="current-password" autofocus />
+        <button type="submit" class="btn-gate-submit">Unlock Operations Desk</button>
+      </form>
+      <p class="auth-gate-hint">Demo Authority Passcode: <code>cleanstreet2026</code></p>
+    </div>
+  </div>
+
+  <!-- ==================== AUTHORITY TOP NAV ==================== -->
+  <header class="admin-navbar" role="banner">
+    <div class="admin-nav-inner">
+      <div class="admin-brand">
+        <span class="admin-brand-icon" aria-hidden="true">🌿</span>
+        <div>
+          <h1 class="admin-brand-title">
+            CleanStreet Field Desk
+            <span class="authority-pill">Authority Operations</span>
+          </h1>
+          <p class="admin-brand-sub">Municipal Ground Operations, Dispatch &amp; Citizen Tracking</p>
+        </div>
+      </div>
+
+      <div class="admin-nav-controls">
+        <div class="auto-refresh-pill" id="auto-refresh-status" title="Live status updates active">
+          <span class="auto-refresh-dot" aria-hidden="true"></span>
+          <span>Live Sync (10s)</span>
+        </div>
+        <button class="btn btn-outline btn-sm" id="btn-refresh-data" style="color:#fff;border-color:rgba(255,255,255,0.3);">
+          ↻ Refresh
+        </button>
+        <a href="/admin" class="btn btn-outline btn-sm" style="color:#38bdf8;border-color:rgba(56,189,248,0.4);text-decoration:none;">
+          ⚙️ Admin Console ↗
+        </a>
+        <a href="/" target="_blank" class="btn btn-outline btn-sm" style="color:#fff;border-color:rgba(255,255,255,0.3);text-decoration:none;">
+          Public App ↗
+        </a>
+        <button class="btn btn-text btn-sm" id="btn-lock-session" style="color:#94a3b8;" title="Lock Portal">
+          🔒 Lock
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN AUTHORITY DASHBOARD ==================== -->
+  <main class="admin-main-wrap">
+
+    <!-- Prototype Operations Notice -->
+    <div class="privacy-notice-box" role="note" style="margin-bottom:1.25rem;">
+      <span aria-hidden="true">💡</span>
+      <div>
+        <strong>Prototype Operations Notice:</strong> This operations desk simulates field inspection and ground action workflows for the CleanStreet civic hackathon demo. Action statuses and log notes are recorded in the local demo database and do not dispatch real city vehicles.
+      </div>
+    </div>
+
+    <!-- KPI Metric Cards -->
+    <section class="admin-metrics-grid" aria-label="Complaint Statistics">
+      <div class="admin-stat-card stat-total">
+        <span class="admin-stat-num" id="metric-total">0</span>
+        <span class="admin-stat-label">Total Complaints</span>
+      </div>
+      <div class="admin-stat-card stat-new">
+        <span class="admin-stat-num" id="metric-new">0</span>
+        <span class="admin-stat-label">Pending Inspection</span>
+      </div>
+      <div class="admin-stat-card stat-progress">
+        <span class="admin-stat-num" id="metric-progress">0</span>
+        <span class="admin-stat-label">Crew Dispatched</span>
+      </div>
+      <div class="admin-stat-card stat-resolved">
+        <span class="admin-stat-num" id="metric-resolved">0</span>
+        <span class="admin-stat-label">Cleared &amp; Resolved</span>
+      </div>
+    </section>
+
+    <!-- Authority Filter & Search Toolbar -->
+    <section class="admin-toolbar" aria-label="Complaint Filters">
+      <div class="admin-filter-group">
+        <label for="filter-authority-status" class="sr-only">Filter by Status</label>
+        <select id="filter-authority-status" class="admin-select">
+          <option value="all">All Statuses</option>
+          <option value="new">🔵 New (Pending Inspection)</option>
+          <option value="inprogress">🟡 In Progress (Dispatched)</option>
+          <option value="resolved">🟢 Resolved (Cleared)</option>
+        </select>
+
+        <label for="filter-authority-type" class="sr-only">Filter by Issue Type</label>
+        <select id="filter-authority-type" class="admin-select">
+          <option value="all">All Issue Categories</option>
+          <option value="overflow">🗑 Overflowing Bin</option>
+          <option value="missed">🚛 Missed Pickup</option>
+          <option value="dumping">⚠️ Illegal Dumping</option>
+          <option value="drain">🌊 Blocked Drain</option>
+          <option value="other">📋 Other Issue</option>
+        </select>
+
+        <label for="search-authority-query" class="sr-only">Search Location</label>
+        <input type="text" id="search-authority-query" class="admin-search-input" placeholder="Search locality, street, or description…" autocomplete="off" />
+      </div>
+
+      <div style="font-size:.85rem;color:#64748b;" id="filter-count-badge">
+        Showing 0 complaints
+      </div>
+    </section>
+
+    <!-- Complaints Action List -->
+    <section class="admin-cards-list" id="authority-reports-list" aria-label="Complaints Management List">
+      <!-- Populated via authority.js -->
+    </section>
+
+    <!-- Empty State -->
+    <div id="authority-empty-state" class="empty-state hidden" style="background:#fff;border-radius:12px;padding:3rem 1.5rem;text-align:center;border:1px solid #e2e8f0;margin-top:1rem;">
+      <div style="font-size:3rem;margin-bottom:0.75rem;">📋</div>
+      <h3 style="margin:0 0 .5rem 0;color:#0f172a;">No complaints matching current filters</h3>
+      <p style="margin:0;color:#64748b;font-size:.9rem;">All neighbourhood reports are either cleared or no submissions match your search.</p>
+    </div>
+
+  </main>
+
+  <!-- Photo Lightbox Modal -->
+  <div id="photo-modal" class="auth-gate-modal hidden" role="dialog" aria-modal="true" style="background:rgba(0,0,0,0.85);cursor:pointer;">
+    <div style="max-width:90vw;max-height:90vh;display:flex;align-items:center;justify-content:center;">
+      <img id="modal-photo-img" src="" alt="Enlarged complaint photo" style="max-width:100%;max-height:85vh;border-radius:10px;box-shadow:0 20px 25px -5px rgba(0,0,0,0.5);" />
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+  <script src="authority.js"></script>
+</body>
+</html>

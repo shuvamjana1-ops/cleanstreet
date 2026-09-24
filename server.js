@@ -60,6 +60,16 @@ app.use('/uploads', express.static(UPLOADS_DIR));
 // Serve frontend static assets
 app.use(express.static(path.join(__dirname)));
 
+// Authority Portal route (field officers & dispatch desk)
+app.get('/authority', (req, res) => {
+  res.sendFile(path.join(__dirname, 'authority.html'));
+});
+
+// Central Administrator Control Portal
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
 /* =====================================================
    REST API ROUTES
    ===================================================== */
@@ -181,19 +191,67 @@ app.post('/api/reports', upload.single('photo'), (req, res) => {
   }
 });
 
-// 6. Community confirmation endpoint
+// 6. Community / Authority confirmation endpoint (updates status when confirmed)
 app.post('/api/reports/:id/confirm', (req, res) => {
   try {
-    const updated = db.confirmReport(req.params.id);
+    const { status, note } = req.body || {};
+    const updated = db.confirmReport(req.params.id, status, note);
     if (!updated) {
       return res.status(404).json({ success: false, error: 'Report not found' });
     }
     res.json({
       success: true,
-      message: 'Community confirmation recorded in SQLite.',
+      message: `Confirmation recorded. Tracking status updated to "${updated.status}".`,
       confirmations: updated.confirmations,
+      status: updated.status,
       report: updated,
     });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 6b. Bulk Status Update (Admin feature)
+app.post('/api/reports/bulk-status', (req, res) => {
+  try {
+    const { ids, status, note } = req.body || {};
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ success: false, error: 'Array of report IDs is required' });
+    }
+    const allowed = ['new', 'inprogress', 'resolved'];
+    if (!allowed.includes(status)) {
+      return res.status(400).json({ success: false, error: `Invalid status. Allowed: ${allowed.join(', ')}` });
+    }
+    const updatedCount = db.bulkUpdateStatus(ids, status, note);
+    res.json({
+      success: true,
+      message: `Successfully updated ${updatedCount} reports to "${status}".`,
+      updatedCount,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 6c. Export Complaints as CSV (Admin feature)
+app.get('/api/reports/export/csv', (req, res) => {
+  try {
+    const reports = db.getAllReports({});
+    const header = ['ID', 'Issue Type', 'Location', 'Status', 'Confirmations', 'Photo Size KB', 'Created At', 'Description'];
+    const rows = reports.map(r => [
+      `"${r.id}"`,
+      `"${r.type}"`,
+      `"${(r.location || '').replace(/"/g, '""')}"`,
+      `"${r.status}"`,
+      r.confirmations || 1,
+      r.photo_size_kb || 0,
+      `"${r.created_at || ''}"`,
+      `"${(r.description || '').replace(/"/g, '""')}"`,
+    ]);
+    const csvContent = [header.join(','), ...rows.map(row => row.join(','))].join('\r\n');
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="cleanstreet-reports-${Date.now()}.csv"`);
+    res.send(csvContent);
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -234,6 +292,16 @@ app.delete('/api/reports/:id', (req, res) => {
       return res.status(404).json({ success: false, error: 'Report not found' });
     }
     res.json({ success: true, message: 'Report deleted from SQLite.' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 7b. Reset / Clear all demo reports
+app.post('/api/reports/reset', (req, res) => {
+  try {
+    const deletedCount = db.clearAllDemoReports();
+    res.json({ success: true, message: `Reset complete. Removed ${deletedCount} demo reports.`, deletedCount });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }

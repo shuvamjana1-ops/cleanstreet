@@ -1,0 +1,521 @@
+/* =====================================================
+   CleanStreet — Municipal Authority & Dispatch Portal CSS
+   ===================================================== */
+
+:root {
+  --admin-nav-bg: #0f172a; /* Slate 900 */
+  --admin-nav-text: #f8fafc;
+  --admin-accent: #0284c7; /* Sky 600 */
+  --admin-accent-hover: #0369a1;
+  --admin-card-border: #cbd5e1;
+}
+
+body.admin-body {
+  background-color: #f1f5f9; /* Slate 100 */
+  color: #1e293b; /* Slate 800 */
+  min-height: 100vh;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Authority Top Nav */
+.admin-navbar {
+  background-color: var(--admin-nav-bg);
+  color: var(--admin-nav-text);
+  padding: 0.85rem 1.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.admin-nav-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.admin-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.admin-brand-icon {
+  font-size: 1.6rem;
+  background: rgba(255,255,255,0.1);
+  padding: 0.35rem 0.55rem;
+  border-radius: 8px;
+}
+
+.admin-brand-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.authority-pill {
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: #dc2626;
+  color: #fff;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.admin-brand-sub {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.admin-nav-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.auto-refresh-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  color: #e2e8f0;
+}
+
+.auto-refresh-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: pulse-dot 2s infinite ease-in-out;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.admin-main-wrap {
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 3rem 1.25rem;
+  box-sizing: border-box;
+  flex: 1;
+}
+
+/* Metric Cards */
+.admin-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.admin-stat-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-stat-card.stat-new { border-left: 5px solid #2563eb; }
+.admin-stat-card.stat-progress { border-left: 5px solid #d97706; }
+.admin-stat-card.stat-resolved { border-left: 5px solid #16a34a; }
+.admin-stat-card.stat-total { border-left: 5px solid #64748b; }
+
+.admin-stat-num {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1;
+  margin-bottom: 0.35rem;
+}
+
+.admin-stat-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Authority Filter Toolbar */
+.admin-toolbar {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.75rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.admin-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.admin-select {
+  padding: 0.5rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.admin-search-input {
+  padding: 0.5rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 0.88rem;
+  min-width: 240px;
+}
+
+/* Complaint Cards */
+.admin-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.authority-complaint-card {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  padding: 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 1.5rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+@media (max-width: 900px) {
+  .authority-complaint-card {
+    grid-template-columns: 1fr;
+  }
+}
+
+.authority-complaint-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.complaint-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.complaint-type-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 0.2rem 0.65rem;
+  border-radius: 6px;
+}
+
+.complaint-location {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0.4rem 0 0.25rem 0;
+}
+
+.complaint-desc {
+  font-size: 0.92rem;
+  color: #334155;
+  line-height: 1.5;
+  margin: 0.5rem 0;
+  background: #f8fafc;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border-left: 3px solid #cbd5e1;
+}
+
+.complaint-meta-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-top: 0.75rem;
+}
+
+.confirm-badge-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+/* Dispatch Box (Right column on card) */
+.authority-dispatch-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.dispatch-box-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 0.85rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.dispatch-note-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  font-size: 0.85rem;
+  resize: vertical;
+  min-height: 60px;
+  margin-top: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-family: inherit;
+}
+
+.dispatch-actions-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+.btn-dispatch-save {
+  flex: 1;
+  background: #0284c7;
+  color: #fff;
+  border: none;
+  padding: 0.55rem 0.75rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-dispatch-save:hover {
+  background: #0369a1;
+}
+
+.btn-delete-report {
+  background: transparent;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  padding: 0.55rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-delete-report:hover {
+  background: #fee2e2;
+}
+
+/* Authority Photo Thumbnail */
+.complaint-photo-box {
+  margin-top: 0.75rem;
+  display: inline-block;
+  position: relative;
+}
+
+.complaint-photo-img {
+  max-height: 120px;
+  max-width: 220px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  object-fit: cover;
+  cursor: pointer;
+  display: block;
+}
+
+.complaint-photo-badge {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  background: rgba(15,23,42,0.85);
+  color: #fff;
+  font-size: 0.68rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+}
+
+/* Timeline expandable */
+.authority-timeline-wrap {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.authority-timeline-toggle {
+  background: none;
+  border: none;
+  color: #0284c7;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.authority-timeline-list {
+  margin-top: 0.75rem;
+  padding-left: 1rem;
+  border-left: 2px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.authority-timeline-item {
+  font-size: 0.8rem;
+}
+
+.authority-timeline-item strong {
+  color: #0f172a;
+}
+
+.authority-timeline-item span {
+  color: #64748b;
+  font-size: 0.75rem;
+  margin-left: 0.4rem;
+}
+
+/* Access Passcode Modal Gate */
+.auth-gate-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,23,42,0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.auth-gate-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 2.25rem 2rem;
+  max-width: 440px;
+  width: 100%;
+  box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+  text-align: center;
+}
+
+.auth-gate-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.auth-gate-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 0.5rem 0;
+}
+
+.auth-gate-sub {
+  font-size: 0.88rem;
+  color: #64748b;
+  margin: 0 0 1.5rem 0;
+  line-height: 1.5;
+}
+
+.auth-gate-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.auth-passcode-input {
+  padding: 0.75rem 1rem;
+  font-size: 1.1rem;
+  letter-spacing: 0.15em;
+  text-align: center;
+  border-radius: 8px;
+  border: 2px solid #cbd5e1;
+  font-weight: 700;
+}
+
+.auth-passcode-input:focus {
+  border-color: #0284c7;
+  outline: none;
+}
+
+.btn-gate-submit {
+  background: #0284c7;
+  color: #fff;
+  border: none;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.btn-gate-submit:hover {
+  background: #0369a1;
+}
+
+.auth-gate-hint {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  margin-top: 1rem;
+}

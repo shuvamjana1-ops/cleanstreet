@@ -21,9 +21,9 @@ const ISSUE_TYPES = {
 };
 
 const STATUS_CONFIG = {
-  new:        { label: 'New',         emoji: '🔵' },
-  inprogress: { label: 'In Progress', emoji: '🟡' },
-  resolved:   { label: 'Resolved',    emoji: '🟢' },
+  new:        { label: 'New (Logged)',             emoji: '🔵' },
+  inprogress: { label: 'In Progress (Review)',    emoji: '🟡' },
+  resolved:   { label: 'Resolved (Demo Marked)',   emoji: '🟢' },
 };
 
 /* =====================================================
@@ -38,15 +38,15 @@ const i18n = {
     hero_report_cta:    '📸 Report an Issue',
     hero_guide_cta:     '🗑 Sorting Guide',
     stat_total:         'Total Reports',
-    stat_resolved:      'Resolved',
-    stat_inprogress:    'In Progress',
+    stat_resolved:      'Resolved (Demo)',
+    stat_inprogress:    'In Progress (Review)',
     how_title:          'How It Works',
     step1_title:        'Choose a Location',
     step1_desc:         'Tell us which locality, lane, or landmark needs attention.',
     step2_title:        'Describe the Issue',
     step2_desc:         'Select the issue type and add a short description. A photo helps too.',
     step3_title:        'Track the Status',
-    step3_desc:         'See your report go from New → In Progress → Resolved.',
+    step3_desc:         'Track your demo report status from Logged → In Review → Resolved.',
     recent_title:       'Recent Reports',
     view_all:           'View all →',
     disclaimer_label:   'Demo Notice:',
@@ -97,12 +97,25 @@ const i18n = {
     // Upgraded Hackathon Features
     still_an_issue:     'Still an Issue',
     confirmed_by_you:   'Confirmed by you',
+    upvote_btn:         '▲ Upvote Issue',
+    upvoted_by_you:     '▲ Upvoted by you',
+    toast_upvoted:      'Issue upvoted! Priority elevated in community tracking. 🔥',
     view_timeline:      'Activity Timeline',
     hide_timeline:      'Hide Timeline',
     simulated_log:      'Prototype Log',
     toast_confirmed:    'Thank you! Your confirmation was recorded. 👍',
     helper_items_found: 'items found',
     helper_no_items:    'No items found matching your search.',
+
+    // Preloader strings
+    preloader_status:       'Initializing CleanStreet…',
+    preloader_connecting:   'Connecting to SQLite DBMS…',
+    preloader_loading_reports: 'Loading community reports…',
+    preloader_retrying:     'Reconnecting to database…',
+    preloader_error_title:  'Initialization Notice',
+    preloader_error_msg:    'Could not connect to backend server. You can continue in Local Mode or retry.',
+    preloader_retry_btn:    'Retry Connection',
+    preloader_offline_btn:  'Continue in Local Mode →',
   },
   hi: {
     hero_eyebrow:       'सिविक हैकाथॉन प्रोटोटाइप 🏆',
@@ -111,15 +124,15 @@ const i18n = {
     hero_report_cta:    '📸 समस्या रिपोर्ट करें',
     hero_guide_cta:     '🗑 कचरा छँटाई गाइड',
     stat_total:         'कुल रिपोर्ट',
-    stat_resolved:      'हल हुई',
-    stat_inprogress:    'प्रगति में',
+    stat_resolved:      'हल हुई (डेमो)',
+    stat_inprogress:    'प्रगति में (डेमो)',
     how_title:          'यह कैसे काम करता है',
     step1_title:        'स्थान चुनें',
     step1_desc:         'बताएं कि कौन सी गली या लैंडमार्क पर ध्यान चाहिए।',
     step2_title:        'समस्या बताएं',
     step2_desc:         'समस्या का प्रकार चुनें और संक्षिप्त विवरण दें।',
     step3_title:        'स्थिति ट्रैक करें',
-    step3_desc:         'अपनी रिपोर्ट New → In Progress → Resolved होते देखें।',
+    step3_desc:         'अपनी डेमो रिपोर्ट स्थिति को Logged → In Review → Resolved होते देखें।',
     recent_title:       'हाल की रिपोर्ट',
     view_all:           'सभी देखें →',
     disclaimer_label:   'डेमो नोटिस:',
@@ -176,6 +189,16 @@ const i18n = {
     toast_confirmed:    'धन्यवाद! आपकी पुष्टि दर्ज की गई। 👍',
     helper_items_found: 'वस्तुएं मिलीं',
     helper_no_items:    'आपकी खोज से मेल खाती कोई वस्तु नहीं मिली।',
+
+    // Preloader strings (Hindi)
+    preloader_status:       'CleanStreet प्रारंभ हो रहा है…',
+    preloader_connecting:   'SQLite डेटाबेस से जुड़ रहा है…',
+    preloader_loading_reports: 'सामुदायिक रिपोर्ट लोड हो रही हैं…',
+    preloader_retrying:     'पुनः प्रयास कर रहे हैं…',
+    preloader_error_title:  'प्रारंभिक सूचना',
+    preloader_error_msg:    'सर्वर से कनेक्ट नहीं हो सका। आप स्थानीय मोड में जारी रख सकते हैं या पुनः प्रयास कर सकते हैं।',
+    preloader_retry_btn:    'पुनः प्रयास करें',
+    preloader_offline_btn:  'स्थानीय मोड में जारी रखें →',
   }
 };
 
@@ -258,101 +281,10 @@ function markReportConfirmed(reportId) {
 }
 
 /* =====================================================
-   SEED DATA (Fallback when offline)
+   BLANK REPORT SHEET (No demo reports seeded)
    ===================================================== */
 
-const SEED_REPORTS = [
-  {
-    id: 'seed-001',
-    type: 'overflow',
-    location: 'Gulab Chowk, Andheri West, Mumbai',
-    description: 'The municipal dustbin near the pharmacy has been overflowing for two days. Garbage is spilling onto the footpath.',
-    status: 'inprogress',
-    photo_url: null,
-    photo_size_kb: null,
-    confirmations: 8,
-    timeline: [
-      { status: 'new', title: 'Report Submitted', timestamp: new Date(Date.now() - 2 * 24 * 3600000).toISOString(), note: 'Resident reported overflowing dustbin at Gulab Chowk', simulated: true },
-      { status: 'inprogress', title: 'Assigned to Ward K-West Crew', timestamp: new Date(Date.now() - 22 * 3600000).toISOString(), note: 'Compactor vehicle scheduled for route clearance', simulated: true }
-    ],
-    created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: 'seed-002',
-    type: 'missed',
-    location: 'Lane 4, Sector 18, Noida, UP',
-    description: 'Garbage collection truck has not come to our lane for 3 consecutive days. Bags are piling up outside homes.',
-    status: 'new',
-    photo_url: null,
-    photo_size_kb: null,
-    confirmations: 5,
-    timeline: [
-      { status: 'new', title: 'Report Submitted', timestamp: new Date(Date.now() - 1 * 24 * 3600000).toISOString(), note: 'Logged in civic portal. Awaiting sector sanitation supervisor review', simulated: true }
-    ],
-    created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: 'seed-003',
-    type: 'dumping',
-    location: 'Near Kalyani Nagar flyover, Pune',
-    description: 'Construction debris and household waste dumped under the flyover. Creating a health hazard.',
-    status: 'resolved',
-    photo_url: null,
-    photo_size_kb: null,
-    confirmations: 12,
-    timeline: [
-      { status: 'new', title: 'Report Submitted', timestamp: new Date(Date.now() - 5 * 24 * 3600000).toISOString(), note: 'Illegal dumping reported near flyover pillars', simulated: true },
-      { status: 'inprogress', title: 'Sanitation Inspection', timestamp: new Date(Date.now() - 3 * 24 * 3600000).toISOString(), note: 'PMC solid waste management deployed JCB loader', simulated: true },
-      { status: 'resolved', title: 'Debris Cleared & Sanitised', timestamp: new Date(Date.now() - 1 * 24 * 3600000).toISOString(), note: 'Area cleared of 2.4 tonnes of debris; warning board installed', simulated: true }
-    ],
-    created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: 'seed-004',
-    type: 'drain',
-    location: 'Main Road, Koramangala 5th Block, Bengaluru',
-    description: 'Roadside nala (drain) is blocked with plastic bags after yesterday\'s rain. Water is pooling on the road.',
-    status: 'new',
-    photo_url: null,
-    photo_size_kb: null,
-    confirmations: 4,
-    timeline: [
-      { status: 'new', title: 'Report Submitted', timestamp: new Date(Date.now() - 6 * 3600000).toISOString(), note: 'Stormwater drain blockage reported during heavy shower', simulated: true }
-    ],
-    created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: 'seed-005',
-    type: 'overflow',
-    location: 'Civil Lines Market, Delhi',
-    description: 'Three bins near the vegetable market are overflowing every evening. The smell is affecting nearby shops.',
-    status: 'resolved',
-    photo_url: null,
-    photo_size_kb: null,
-    confirmations: 15,
-    timeline: [
-      { status: 'new', title: 'Report Submitted', timestamp: new Date(Date.now() - 8 * 24 * 3600000).toISOString(), note: 'Market association filed recurring overflow grievance', simulated: true },
-      { status: 'inprogress', title: 'MCD Extra Pickup Dispatched', timestamp: new Date(Date.now() - 6 * 24 * 3600000).toISOString(), note: 'Additional evening shift assigned to Civil Lines market', simulated: true },
-      { status: 'resolved', title: 'Additional Bins Installed', timestamp: new Date(Date.now() - 4 * 24 * 3600000).toISOString(), note: 'Placed two 240L wheelie bins; regular clearance verified', simulated: true }
-    ],
-    created_at: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: 'seed-006',
-    type: 'other',
-    location: 'New Alipore, Block C, Kolkata',
-    description: 'Residents are burning plastic waste in the open lot on Sunday evenings. Smoke is causing respiratory issues.',
-    status: 'inprogress',
-    photo_url: null,
-    photo_size_kb: null,
-    confirmations: 7,
-    timeline: [
-      { status: 'new', title: 'Report Submitted', timestamp: new Date(Date.now() - 3 * 24 * 3600000).toISOString(), note: 'Open burning complaint submitted by resident welfare group', simulated: true },
-      { status: 'inprogress', title: 'KMC Notice Issued', timestamp: new Date(Date.now() - 1 * 24 * 3600000).toISOString(), note: 'Ward inspector visited site; security issued formal advisory', simulated: true }
-    ],
-    created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-];
+const SEED_REPORTS = [];
 
 /* =====================================================
    APPLICATION STATE
@@ -362,8 +294,9 @@ let state = {
   reports: [],
   currentView: 'home',
   lang: 'en',
-  filters: { status: 'all', type: 'all', area: 'all' },
+  filters: { status: 'all', type: 'all', area: 'all', sort: 'upvotes' },
   lastSubmittedId: null,
+  formDirty: false,
   
   // Real-world Backend & DBMS Integration
   backendAvailable: false,
@@ -568,16 +501,16 @@ async function loadReports() {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        state.reports = parsed;
-        return parsed;
+      if (Array.isArray(parsed)) {
+        state.reports = parsed.filter(r => r && r.id && !r.id.startsWith('seed-'));
+        return state.reports;
       }
     }
   } catch (e) {
     console.warn('CleanStreet: error reading localStorage', e);
   }
 
-  state.reports = SEED_REPORTS.map(r => ({ ...r }));
+  state.reports = [];
   return state.reports;
 }
 
@@ -710,6 +643,9 @@ async function apiConfirmReport(reportId) {
   const idx = state.reports.findIndex(r => r.id === reportId);
   if (idx !== -1) {
     state.reports[idx].confirmations = (state.reports[idx].confirmations || 0) + 1;
+    if (state.reports[idx].status === 'new' || state.reports[idx].status === 'resolved') {
+      state.reports[idx].status = 'inprogress';
+    }
     saveLocalReports();
     return state.reports[idx];
   }
@@ -739,10 +675,31 @@ function showView(viewName, pushState = true) {
   document.querySelectorAll('.nav-btn').forEach(btn => {
     const isThisView = btn.dataset.view === viewName;
     btn.classList.toggle('active', isThisView);
-    btn.setAttribute('aria-current', isThisView ? 'page' : 'false');
+    if (isThisView) {
+      btn.setAttribute('aria-current', 'page');
+    } else {
+      btn.removeAttribute('aria-current');
+    }
   });
 
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Close mobile nav menu on view change
+  const navToggle = document.getElementById('nav-toggle');
+  const primaryNav = document.getElementById('primary-nav');
+  if (navToggle && primaryNav) {
+    navToggle.setAttribute('aria-expanded', 'false');
+    primaryNav.classList.remove('open');
+  }
+
+  // Respect prefers-reduced-motion for smooth scroll
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+
+  // Move focus to the heading of the new view for screen readers
+  const heading = target.querySelector('h1');
+  if (heading) {
+    heading.setAttribute('tabindex', '-1');
+    heading.focus({ preventScroll: true });
+  }
 
   if (pushState) {
     history.pushState({ view: viewName }, '', '#' + viewName);
@@ -791,12 +748,15 @@ function formatRelativeDate(isoString) {
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
 
-  if (diffMins < 2) return 'Just now';
-  if (diffMins < 60) return `${diffMins} min ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays === 1) return 'Yesterday';
-  if (diffDays < 7) return `${diffDays} days ago`;
-  return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+  // Use locale-aware formatting
+  const locale = state.lang === 'hi' ? 'hi-IN' : 'en-IN';
+
+  if (diffMins < 2) return state.lang === 'hi' ? 'अभी' : 'Just now';
+  if (diffMins < 60) return state.lang === 'hi' ? `${diffMins} मिनट पहले` : `${diffMins} min ago`;
+  if (diffHours < 24) return state.lang === 'hi' ? `${diffHours} घंटे पहले` : `${diffHours}h ago`;
+  if (diffDays === 1) return state.lang === 'hi' ? 'कल' : 'Yesterday';
+  if (diffDays < 7) return state.lang === 'hi' ? `${diffDays} दिन पहले` : `${diffDays} days ago`;
+  return date.toLocaleDateString(locale, { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
 function statusBadgeHTML(status) {
@@ -861,7 +821,8 @@ function renderReportCard(report) {
   }
 
   const isConfirmed = isReportConfirmed(report.id);
-  const confirmCount = report.confirmations || 0;
+  const upvoteCount = report.confirmations || 1;
+  const isHotPriority = upvoteCount >= 2;
   const dict = i18n[state.lang] || i18n.en;
 
   const timelineStepsHtml = timeline.map((step, idx) => {
@@ -882,7 +843,10 @@ function renderReportCard(report) {
   card.innerHTML = `
     <div class="report-card-top">
       <div style="flex:1;min-width:0;">
-        <span class="report-type-badge">${typeLabel(report.type)}</span>
+        <div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">
+          <span class="report-type-badge">${typeLabel(report.type)}</span>
+          ${isHotPriority ? `<span class="priority-badge-hot">🔥 Top Priority (${upvoteCount} Upvotes)</span>` : ''}
+        </div>
         <p class="report-location" style="margin-top:.35rem;">${escHtml(report.location)}</p>
       </div>
       ${statusBadgeHTML(report.status)}
@@ -894,12 +858,12 @@ function renderReportCard(report) {
       <span style="font-size:.72rem;color:var(--neutral-500);font-family:monospace;">${report.id}</span>
     </div>
 
-    <!-- Community Confirmation & Activity Timeline Actions -->
+    <!-- Community Upvote Priority & Activity Timeline Actions -->
     <div class="report-card-actions">
-      <button class="btn-confirm ${isConfirmed ? 'is-confirmed' : ''}" data-id="${report.id}" aria-label="Confirm this issue" ${isConfirmed ? 'disabled' : ''}>
-        <span>${isConfirmed ? '✅' : '👍'}</span>
-        <span class="confirm-btn-label">${isConfirmed ? (dict.confirmed_by_you || 'Confirmed by you') : (dict.still_an_issue || 'Still an Issue')}</span>
-        <span class="confirm-count">${confirmCount}</span>
+      <button class="btn-confirm btn-upvote-issue ${isConfirmed ? 'is-confirmed' : ''}" data-id="${report.id}" aria-label="Upvote this issue to increase community priority" ${isConfirmed ? 'disabled' : ''}>
+        <span aria-hidden="true">${isConfirmed ? '▲' : '▲'}</span>
+        <span class="confirm-btn-label">${isConfirmed ? (dict.upvoted_by_you || 'Upvoted by you') : (dict.upvote_btn || '▲ Upvote Issue')}</span>
+        <span class="confirm-count">${upvoteCount}</span>
       </button>
 
       <button class="timeline-toggle-btn" data-id="${report.id}" aria-expanded="false" aria-controls="timeline-drawer-${report.id}">
@@ -916,26 +880,45 @@ function renderReportCard(report) {
     </div>
   `;
 
-  // Attach Community Confirmation listener
+  // Attach Community Upvote Priority listener
   const confirmBtn = card.querySelector('.btn-confirm');
   if (confirmBtn && !isConfirmed) {
     confirmBtn.addEventListener('click', async (e) => {
       e.stopPropagation();
       confirmBtn.disabled = true;
       const labelSpan = confirmBtn.querySelector('.confirm-btn-label');
-      if (labelSpan) labelSpan.textContent = 'Saving…';
+      if (labelSpan) labelSpan.textContent = 'Upvoting…';
 
       const updated = await apiConfirmReport(report.id);
       markReportConfirmed(report.id);
 
       confirmBtn.classList.add('is-confirmed');
-      if (labelSpan) labelSpan.textContent = dict.confirmed_by_you || 'Confirmed by you';
+      if (labelSpan) labelSpan.textContent = dict.upvoted_by_you || '▲ Upvoted by you';
       const countSpan = confirmBtn.querySelector('.confirm-count');
-      if (countSpan) countSpan.textContent = updated ? (updated.confirmations || confirmCount + 1) : (confirmCount + 1);
-      const iconSpan = confirmBtn.querySelector('span:first-child');
-      if (iconSpan) iconSpan.textContent = '✅';
+      const newCount = updated ? (updated.confirmations || upvoteCount + 1) : (upvoteCount + 1);
+      if (countSpan) countSpan.textContent = newCount;
 
-      showToast(dict.toast_confirmed || 'Thank you! Your confirmation was recorded. 👍', 'success');
+      // Update the status badge in the card immediately!
+      if (updated && updated.status) {
+        report.status = updated.status;
+        const statusBadge = card.querySelector('.status-badge');
+        if (statusBadge) {
+          const cfg = STATUS_CONFIG[updated.status] || STATUS_CONFIG.inprogress;
+          statusBadge.className = `status-badge status-${updated.status}`;
+          statusBadge.setAttribute('aria-label', `Status: ${cfg.label}`);
+          statusBadge.innerHTML = `<span class="status-dot" aria-hidden="true"></span>${cfg.label}`;
+        }
+      }
+
+      // Refresh overview dashboard & statistics
+      updateStats();
+      updateOverviewDashboard();
+
+      if (state.filters.sort === 'upvotes') {
+        renderReportsList();
+      }
+
+      showToast(dict.toast_upvoted || 'Issue upvoted! Priority elevated in community tracking. 🔥', 'success');
     });
   }
 
@@ -1005,6 +988,14 @@ function animateCount(id, target) {
   if (!el) return;
   const current = parseInt(el.textContent) || 0;
   if (current === target) return;
+
+  // Skip animation if user prefers reduced motion
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReducedMotion) {
+    el.textContent = target;
+    return;
+  }
+
   const step = target > current ? 1 : -1;
   let val = current;
   const interval = setInterval(() => {
@@ -1028,10 +1019,14 @@ function updateOverviewDashboard() {
 
   const bar = document.getElementById('issue-dist-bar');
   const legend = document.getElementById('issue-dist-legend');
+  const totalCount = document.getElementById('dist-total-count');
+  if (totalCount) {
+    totalCount.textContent = `${stats.total} ${stats.total === 1 ? 'Report' : 'Reports'}`;
+  }
   if (!bar || !legend) return;
 
   if (stats.total === 0) {
-    bar.innerHTML = '<div style="width:100%;height:100%;background:var(--neutral-300);"></div>';
+    bar.innerHTML = '<div style="width:100%;height:100%;background:var(--neutral-200);border-radius:6px;"></div>';
     legend.innerHTML = '<span style="font-size:.78rem;color:var(--neutral-500);">No reports recorded yet</span>';
     return;
   }
@@ -1065,19 +1060,67 @@ function updateOverviewDashboard() {
     .join('');
 }
 
-function initLocalityChips() {
-  document.querySelectorAll('.locality-chip').forEach(chip => {
+function updateLocalityChips() {
+  const container = document.getElementById('locality-chips');
+  if (!container) return;
+
+  const areas = new Set();
+  state.reports.forEach(r => {
+    if (r.location) {
+      const parts = r.location.split(',').map(s => s.trim()).filter(Boolean);
+      if (parts.length > 0) {
+        areas.add(parts[parts.length - 1]);
+      }
+    }
+  });
+
+  const areaList = Array.from(areas).slice(0, 8);
+  const chipsHtml = [
+    `<button type="button" class="locality-chip ${state.filters.area === 'all' ? 'active' : ''}" data-area="all" aria-pressed="${state.filters.area === 'all'}">All Areas</button>`,
+    ...areaList.map(area => {
+      const isSelected = state.filters.area.toLowerCase() === area.toLowerCase();
+      return `<button type="button" class="locality-chip ${isSelected ? 'active' : ''}" data-area="${escHtml(area)}" aria-pressed="${isSelected}"><span aria-hidden="true">📍</span> ${escHtml(area)}</button>`;
+    })
+  ].join('');
+
+  container.innerHTML = chipsHtml;
+  bindLocalityChipsEvents();
+}
+
+function bindLocalityChipsEvents() {
+  const chips = document.querySelectorAll('.locality-chip');
+  chips.forEach(chip => {
     chip.addEventListener('click', () => {
       const area = chip.dataset.area || 'all';
       state.filters.area = area;
-      document.querySelectorAll('.locality-chip').forEach(c => {
+      chips.forEach(c => {
         const isCurrent = c === chip;
         c.classList.toggle('active', isCurrent);
         c.setAttribute('aria-pressed', isCurrent ? 'true' : 'false');
       });
       renderReportsList();
     });
+
+    // Arrow key navigation between chips
+    chip.addEventListener('keydown', (e) => {
+      const chipArr = Array.from(chips);
+      const idx = chipArr.indexOf(chip);
+      let next = -1;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        next = (idx + 1) % chipArr.length;
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        next = (idx - 1 + chipArr.length) % chipArr.length;
+      }
+      if (next !== -1) {
+        e.preventDefault();
+        chipArr[next].focus();
+      }
+    });
   });
+}
+
+function initLocalityChips() {
+  updateLocalityChips();
 }
 
 /* =====================================================
@@ -1174,7 +1217,8 @@ function initSortingHelper() {
    ===================================================== */
 
 function getFilteredReports() {
-  return state.reports
+  const sortMode = state.filters.sort || 'upvotes';
+  const list = state.reports
     .filter(r => state.filters.status === 'all' || r.status === state.filters.status)
     .filter(r => state.filters.type === 'all' || r.type === state.filters.type)
     .filter(r => {
@@ -1182,24 +1226,57 @@ function getFilteredReports() {
       const targetArea = state.filters.area.toLowerCase();
       const loc = (r.location || '').toLowerCase();
       return loc.includes(targetArea);
-    })
-    .sort((a, b) => new Date(b.created_at || b.createdAt) - new Date(a.created_at || a.createdAt));
+    });
+
+  if (sortMode === 'upvotes') {
+    return list.sort((a, b) => {
+      const upA = a.confirmations || 0;
+      const upB = b.confirmations || 0;
+      if (upB !== upA) return upB - upA;
+      return new Date(b.created_at || b.createdAt) - new Date(a.created_at || a.createdAt);
+    });
+  } else if (sortMode === 'oldest') {
+    return list.sort((a, b) => new Date(a.created_at || a.createdAt) - new Date(b.created_at || b.createdAt));
+  } else {
+    // newest
+    return list.sort((a, b) => new Date(b.created_at || b.createdAt) - new Date(a.created_at || a.createdAt));
+  }
 }
 
 function renderReportsList() {
   updateOverviewDashboard();
+  updateLocalityChips();
   const list = document.getElementById('reports-list');
   const empty = document.getElementById('reports-empty');
+  const srStatus = document.getElementById('reports-sr-status');
   if (!list) return;
   list.innerHTML = '';
   const filtered = getFilteredReports();
   if (filtered.length === 0) {
     empty.classList.remove('hidden');
     list.style.display = 'none';
+
+    const titleEl = empty.querySelector('[data-i18n="reports_empty_title"]') || empty.querySelector('p:first-of-type');
+    const subEl = empty.querySelector('.empty-sub');
+    if (state.reports.length === 0) {
+      if (titleEl) titleEl.textContent = state.lang === 'hi' ? 'अभी कोई रिपोर्ट दर्ज नहीं की गई है।' : 'No reports submitted yet.';
+      if (subEl) subEl.innerHTML = state.lang === 'hi' ? 'अपनी पहली रिपोर्ट दर्ज करने के लिए ऊपर <strong>+ New Report</strong> पर क्लिक करें।' : 'Click <strong>+ New Report</strong> above to submit your first report!';
+    } else {
+      if (titleEl) titleEl.textContent = state.lang === 'hi' ? 'आपके फ़िल्टर से कोई रिपोर्ट मेल नहीं खाती।' : 'No reports match your filters.';
+      if (subEl) subEl.textContent = state.lang === 'hi' ? 'फ़िल्टर साफ़ करें या नई रिपोर्ट जोड़ें।' : 'Try clearing the filters or submit a new report.';
+    }
   } else {
     empty.classList.add('hidden');
     list.style.display = '';
     filtered.forEach(r => list.appendChild(renderReportCard(r)));
+  }
+
+  // Announce filter results to screen readers
+  if (srStatus) {
+    const dict = i18n[state.lang] || i18n.en;
+    srStatus.textContent = filtered.length === 0
+      ? (state.reports.length === 0 ? 'No reports submitted yet.' : (dict.reports_empty_title || 'No reports match your filters.'))
+      : `${filtered.length} ${filtered.length === 1 ? 'report' : 'reports'} shown.`;
   }
 }
 
@@ -1212,6 +1289,12 @@ function clearForm() {
   clearPhoto();
   clearErrors();
   updateCharCount();
+  const dupBox = document.getElementById('duplicate-suggestion-box');
+  if (dupBox) {
+    dupBox.classList.add('hidden');
+    dupBox.innerHTML = '';
+  }
+  state.formDirty = false;
 }
 
 function clearErrors() {
@@ -1229,19 +1312,32 @@ function setError(fieldId, errId, message) {
 function validateForm() {
   clearErrors();
   let valid = true;
+  let firstInvalid = null;
   const type = document.getElementById('f-type').value;
   const location = document.getElementById('f-location').value.trim();
+  const dict = i18n[state.lang] || i18n.en;
 
   if (!type) {
-    setError('f-type', 'err-type', 'Please select an issue type.');
+    const msg = state.lang === 'hi' ? 'कृपया समस्या का प्रकार चुनें।' : 'Please select an issue type.';
+    setError('f-type', 'err-type', msg);
+    if (!firstInvalid) firstInvalid = document.getElementById('f-type');
     valid = false;
   }
   if (!location) {
-    setError('f-location', 'err-location', 'Please enter a location.');
+    const msg = state.lang === 'hi' ? 'कृपया स्थान दर्ज करें।' : 'Please enter a location.';
+    setError('f-location', 'err-location', msg);
+    if (!firstInvalid) firstInvalid = document.getElementById('f-location');
     valid = false;
   } else if (location.length < 4) {
-    setError('f-location', 'err-location', 'Location must be at least 4 characters.');
+    const msg = state.lang === 'hi' ? 'स्थान कम से कम 4 अक्षरों का होना चाहिए।' : 'Location must be at least 4 characters.';
+    setError('f-location', 'err-location', msg);
+    if (!firstInvalid) firstInvalid = document.getElementById('f-location');
     valid = false;
+  }
+
+  // Focus first invalid field for keyboard/screen-reader users
+  if (firstInvalid) {
+    firstInvalid.focus();
   }
   return valid;
 }
@@ -1320,14 +1416,14 @@ async function handleFormPhotoUpload(file) {
 async function submitReport(e) {
   e.preventDefault();
   if (!validateForm()) {
-    const firstErr = document.querySelector('.field-error:not(:empty)');
-    if (firstErr) firstErr.focus();
+    // validateForm already moves focus to first invalid field
     return;
   }
 
   const btn = document.getElementById('form-submit-btn');
   btn.disabled = true;
-  btn.textContent = 'Persisting to SQLite…';
+  btn.setAttribute('aria-busy', 'true');
+  btn.textContent = state.backendAvailable ? 'Saving to database…' : 'Saving…';
 
   const type = document.getElementById('f-type').value;
   const location = document.getElementById('f-location').value.trim();
@@ -1353,12 +1449,14 @@ async function submitReport(e) {
     state.lastSubmittedId = newReport.id;
     renderConfirm(newReport);
     showView('confirm');
-    showToast('Report submitted & persisted in database! ✓', 'success');
+    state.formDirty = false;
+    showToast(state.lang === 'hi' ? 'रिपोर्ट सफलतापूर्वक जमा हुई! ✓' : 'Report submitted successfully! ✓', 'success');
   } catch (err) {
     console.error('Report submission failed', err);
-    showToast('Error saving report. Please try again.', 'error');
+    showToast(state.lang === 'hi' ? 'रिपोर्ट सहेजने में त्रुटि। कृपया पुनः प्रयास करें।' : 'Error saving report. Please try again.', 'error');
   } finally {
     btn.disabled = false;
+    btn.removeAttribute('aria-busy');
     btn.textContent = i18n[state.lang]['f_submit'] || 'Submit Report';
   }
 }
@@ -1459,6 +1557,160 @@ function renderAdminList() {
 
     list.appendChild(card);
   });
+
+  // Load Google Form integration status in admin panel
+  loadGoogleFormConfig();
+}
+
+/* =====================================================
+   GOOGLE FORM & CLOUD STORAGE INTEGRATION
+   ===================================================== */
+
+async function loadGoogleFormConfig() {
+  const badge = document.getElementById('gf-status-badge');
+  const badgeText = document.getElementById('gf-status-text');
+  if (!badge || !badgeText) return;
+
+  try {
+    const res = await fetch('/api/google-form/config');
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data.success && data.config) {
+      const cfg = data.config;
+      const urlInput = document.getElementById('gf-url');
+      const typeInput = document.getElementById('gf-entry-type');
+      const locInput = document.getElementById('gf-entry-loc');
+      const descInput = document.getElementById('gf-entry-desc');
+      const photoInput = document.getElementById('gf-entry-photo');
+      const scriptInput = document.getElementById('gf-script-url');
+
+      if (urlInput) urlInput.value = cfg.googleFormUrl || '';
+      if (typeInput) typeInput.value = cfg.entryType || '';
+      if (locInput) locInput.value = cfg.entryLocation || '';
+      if (descInput) descInput.value = cfg.entryDescription || '';
+      if (photoInput) photoInput.value = cfg.entryPhoto || '';
+      if (scriptInput) scriptInput.value = cfg.googleScriptUrl || '';
+
+      if (cfg.enabled) {
+        badge.classList.add('connected');
+        badgeText.textContent = cfg.googleFormUrl ? 'Google Form Active' : 'Apps Script Active';
+        badge.title = 'Submissions automatically sync to Google Form & Google Sheet';
+      } else {
+        badge.classList.remove('connected');
+        badgeText.textContent = 'Not Connected';
+        badge.title = 'Enter Google Form URL and field IDs to enable sync';
+      }
+    }
+  } catch (err) {
+    console.warn('Could not load Google Form config:', err);
+  }
+}
+
+function initGoogleFormPanel() {
+  const form = document.getElementById('google-form-settings');
+  const testBtn = document.getElementById('gf-test-btn');
+  const guideBtn = document.getElementById('gf-guide-toggle-btn');
+  const guideBox = document.getElementById('gf-guide-box');
+  const autoDetectBtn = document.getElementById('gf-auto-detect-btn');
+
+  if (autoDetectBtn) {
+    autoDetectBtn.addEventListener('click', async () => {
+      const url = document.getElementById('gf-url')?.value.trim();
+      if (!url) {
+        showToast('Please enter your Google Form URL first.', 'error');
+        return;
+      }
+      autoDetectBtn.disabled = true;
+      autoDetectBtn.textContent = 'Detecting…';
+
+      try {
+        const res = await fetch('/api/google-form/discover', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url }),
+        });
+        const data = await res.json();
+        if (data.success && data.fields) {
+          if (data.fields.entryType) document.getElementById('gf-entry-type').value = data.fields.entryType;
+          if (data.fields.entryLocation) document.getElementById('gf-entry-loc').value = data.fields.entryLocation;
+          if (data.fields.entryDescription) document.getElementById('gf-entry-desc').value = data.fields.entryDescription;
+          if (data.fields.entryPhoto) document.getElementById('gf-entry-photo').value = data.fields.entryPhoto;
+          showToast(`Detected form fields automatically! Click Save Configuration. ✓`, 'success');
+        } else {
+          showToast(data.error || 'Could not auto-detect fields. Please enter field IDs manually.', 'error');
+        }
+      } catch (err) {
+        showToast('Error connecting to form URL.', 'error');
+      } finally {
+        autoDetectBtn.disabled = false;
+        autoDetectBtn.textContent = '⚡ Auto-Detect Fields';
+      }
+    });
+  }
+
+  if (guideBtn && guideBox) {
+    guideBtn.addEventListener('click', () => {
+      guideBox.classList.toggle('hidden');
+    });
+  }
+
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const saveBtn = document.getElementById('gf-save-btn');
+      if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving…'; }
+
+      const payload = {
+        googleFormUrl: document.getElementById('gf-url')?.value.trim() || '',
+        entryType: document.getElementById('gf-entry-type')?.value.trim() || '',
+        entryLocation: document.getElementById('gf-entry-loc')?.value.trim() || '',
+        entryDescription: document.getElementById('gf-entry-desc')?.value.trim() || '',
+        entryPhoto: document.getElementById('gf-entry-photo')?.value.trim() || '',
+        googleScriptUrl: document.getElementById('gf-script-url')?.value.trim() || '',
+      };
+
+      try {
+        const res = await fetch('/api/google-form/config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('Google Form configuration saved successfully ✓', 'success');
+          await loadGoogleFormConfig();
+        } else {
+          showToast(data.error || 'Failed to save configuration', 'error');
+        }
+      } catch (err) {
+        showToast('Error saving Google Form configuration', 'error');
+      } finally {
+        if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '💾 Save Configuration'; }
+      }
+    });
+  }
+
+  if (testBtn) {
+    testBtn.addEventListener('click', async () => {
+      testBtn.disabled = true;
+      testBtn.textContent = 'Sending…';
+
+      try {
+        const res = await fetch('/api/google-form/test', { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          showToast('Test submission sent to Google Form / Sheet! ✓', 'success');
+        } else {
+          showToast(data.error || 'Failed to send test submission', 'error');
+        }
+      } catch (err) {
+        showToast('Error connecting to Google Form', 'error');
+      } finally {
+        testBtn.disabled = false;
+        testBtn.textContent = '🧪 Send Test Report';
+      }
+    });
+  }
 }
 
 /* =====================================================
@@ -1473,8 +1725,13 @@ function showToast(message, type = '') {
   toast.className = `toast ${type}`;
   void toast.offsetWidth;
   toast.classList.add('show');
+  toast.classList.remove('hidden');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove('show'), 3400);
+  toastTimer = setTimeout(() => {
+    toast.classList.remove('show');
+    // Re-hide after transition completes so it doesn't remain in DOM flow
+    setTimeout(() => toast.classList.add('hidden'), 300);
+  }, 3400);
 }
 
 /* =====================================================
@@ -1492,10 +1749,188 @@ function escHtml(str) {
 }
 
 /* =====================================================
+   DUPLICATE REPORT DETECTION & TRUST CONTROLS
+   ===================================================== */
+
+let dupDebounceTimer = null;
+
+function checkSimilarReports() {
+  const box = document.getElementById('duplicate-suggestion-box');
+  if (!box) return;
+
+  const type = document.getElementById('f-type')?.value;
+  const locRaw = (document.getElementById('f-location')?.value || '').trim();
+
+  if (!type || locRaw.length < 3) {
+    box.classList.add('hidden');
+    box.innerHTML = '';
+    return;
+  }
+
+  const locTokens = locRaw.toLowerCase().split(/[\s,.-]+/).filter(w => w.length >= 3);
+
+  // Find candidate matches: same type and matching location tokens or substring
+  const matches = state.reports.filter(r => {
+    if (r.type !== type) return false;
+    const rLoc = (r.location || '').toLowerCase();
+    if (rLoc.includes(locRaw.toLowerCase()) || locRaw.toLowerCase().includes(rLoc)) return true;
+    return locTokens.some(tok => rLoc.includes(tok));
+  }).slice(0, 2);
+
+  if (matches.length === 0) {
+    box.className = 'duplicate-suggestion-box no-match';
+    box.innerHTML = `
+      <span>✓ No matching ${ISSUE_TYPES[type]?.label || 'reports'} found in this neighbourhood. Proceed with your new report.</span>
+    `;
+    box.classList.remove('hidden');
+    return;
+  }
+
+  box.className = 'duplicate-suggestion-box';
+  box.innerHTML = `
+    <div class="dup-header">
+      <span aria-hidden="true">🔍</span>
+      <span>Similar Community Report Found Nearby</span>
+    </div>
+    <p class="dup-sub">Another resident may have already reported this issue. You can confirm the existing report (+1) or continue submitting your new report:</p>
+    ${matches.map(m => {
+      const dateStr = formatRelativeDate(m.created_at || m.createdAt);
+      return `
+        <div class="dup-card" data-id="${m.id}">
+          <div class="dup-card-info">
+            <div class="dup-card-loc">${escHtml(m.location)}</div>
+            <div class="dup-card-meta">
+              <span>Status: <strong>${m.status === 'inprogress' ? 'In Progress' : (m.status === 'resolved' ? 'Resolved' : 'New')}</strong></span> ·
+              <span>📅 ${dateStr}</span> ·
+              <span>👍 ${m.confirmations || 1} Confirmations</span>
+            </div>
+            ${m.description ? `<p style="margin:4px 0 0 0;font-size:0.78rem;color:var(--neutral-600);">"${escHtml(m.description.slice(0, 90))}${m.description.length > 90 ? '…' : ''}"</p>` : ''}
+          </div>
+          <button type="button" class="btn-dup-confirm" data-id="${m.id}" aria-label="Confirm this existing report">
+            <span>👍</span> Still an Issue (+1)
+          </button>
+        </div>
+      `;
+    }).join('')}
+    <div class="dup-actions">
+      <button type="button" class="btn-dup-dismiss" id="btn-dup-dismiss">
+        Continue submitting new report anyway →
+      </button>
+    </div>
+  `;
+  box.classList.remove('hidden');
+
+  // Bind confirmation & dismiss
+  box.querySelectorAll('.btn-dup-confirm').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const reportId = btn.dataset.id;
+      btn.disabled = true;
+      btn.textContent = 'Confirming…';
+
+      await apiConfirmReport(reportId);
+      markReportConfirmed(reportId);
+      await loadReports();
+      renderReportsList();
+      updateStats();
+      showView('reports');
+
+      const targetCard = document.querySelector(`.report-card[data-id="${reportId}"]`);
+      if (targetCard) {
+        targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+
+      showToast('Thank you! Confirmed existing report instead of creating a duplicate. 👍', 'success');
+      clearForm();
+      box.classList.add('hidden');
+    });
+  });
+
+  const dismissBtn = box.querySelector('#btn-dup-dismiss');
+  dismissBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    box.classList.add('hidden');
+  });
+}
+
+function initDuplicateDetection() {
+  const typeSelect = document.getElementById('f-type');
+  const locInput = document.getElementById('f-location');
+
+  typeSelect?.addEventListener('change', checkSimilarReports);
+  locInput?.addEventListener('input', () => {
+    clearTimeout(dupDebounceTimer);
+    dupDebounceTimer = setTimeout(checkSimilarReports, 300);
+  });
+}
+
+function initClearDemoData() {
+  const btn = document.getElementById('btn-clear-demo-data');
+  btn?.addEventListener('click', async () => {
+    const ok = window.confirm('Are you sure you want to clear all locally stored demo reports? This will reset the prototype report sheet.');
+    if (!ok) return;
+
+    btn.disabled = true;
+    btn.textContent = 'Clearing…';
+
+    try {
+      if (state.backendAvailable) {
+        await fetch(`${state.activeApiUrl}/api/reports/reset`, { method: 'POST' });
+      }
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem('cleanstreet_confirmed_reports_v1');
+      state.reports = [];
+      await loadReports();
+      updateStats();
+      renderHomeRecent();
+      renderReportsList();
+      updateOverviewDashboard();
+      updateLocalityChips();
+      showToast('All demo reports cleared. Report sheet is reset.', 'success');
+    } catch (err) {
+      showToast('Error resetting demo reports.', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<span aria-hidden="true">🗑</span> Clear Demo Data';
+    }
+  });
+}
+
+function initGuideAreaFilter() {
+  const select = document.getElementById('guide-area-select');
+  const statusP = document.getElementById('guide-scope-status');
+  select?.addEventListener('change', () => {
+    const val = select.value;
+    if (val === 'ward4' || val === 'ward12') {
+      const wardName = val === 'ward4' ? 'Ward 4 (Andheri West)' : 'Ward 12 (Indiranagar)';
+      if (statusP) {
+        statusP.innerHTML = `⚠️ <strong>Ward-Specific Scope:</strong> Local ward bylaws, doorstep collection timings, and specific segregation rules for <em>${wardName}</em> are not available in this demo. Showing national <strong>SWM Rules 2016 baseline rules</strong>. Please consult your local municipal ward office.`;
+      }
+    } else {
+      if (statusP) {
+        statusP.innerHTML = `Displaying baseline segregation guidelines derived from India's <strong>Solid Waste Management (SWM) Rules, 2016</strong>. Local bylaws and collection days vary by municipality. Please consult your local municipal ward office for binding local rules.`;
+      }
+    }
+  });
+}
+
+/* =====================================================
    EVENT BINDINGS
    ===================================================== */
 
 function bindEvents() {
+  // ---- MOBILE HAMBURGER NAV ----
+  const navToggle = document.getElementById('nav-toggle');
+  const primaryNav = document.getElementById('primary-nav');
+  if (navToggle && primaryNav) {
+    navToggle.addEventListener('click', () => {
+      const expanded = navToggle.getAttribute('aria-expanded') === 'true';
+      navToggle.setAttribute('aria-expanded', String(!expanded));
+      navToggle.setAttribute('aria-label', expanded ? 'Open navigation menu' : 'Close navigation menu');
+      primaryNav.classList.toggle('open', !expanded);
+    });
+  }
+
   // ---- PRIMARY NAVIGATION ----
   document.querySelectorAll('.nav-btn[data-view]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1515,11 +1950,17 @@ function bindEvents() {
   // Database status pill click → show details toast
   document.getElementById('db-status-pill')?.addEventListener('click', () => {
     if (state.backendAvailable) {
-      showToast(`🟢 Connected to SQLite DBMS on port 3000 (${state.reports.length} total reports)`, 'success');
+      showToast(`Connected to database (${state.reports.length} total reports)`, 'success');
     } else {
-      showToast(`⚡ Local Mode: Using browser localStorage. Start server for SQLite DBMS.`, '');
+      showToast('Local Mode: Data stored in your browser only.', '');
     }
   });
+
+  // ---- DUPLICATE DETECTION IN REPORT FORM ----
+  initDuplicateDetection();
+
+  // ---- GUIDE LOCALITY SCOPE SELECTOR ----
+  initGuideAreaFilter();
 
   // ---- HERO BUTTONS ----
   document.getElementById('hero-report-btn')?.addEventListener('click', () => {
@@ -1540,7 +1981,7 @@ function bindEvents() {
     showView('form');
   });
 
-  // ---- FILTERS ----
+  // ---- FILTERS & SORTING ----
   document.getElementById('filter-status')?.addEventListener('change', (e) => {
     state.filters.status = e.target.value;
     renderReportsList();
@@ -1549,12 +1990,18 @@ function bindEvents() {
     state.filters.type = e.target.value;
     renderReportsList();
   });
+  document.getElementById('filter-sort')?.addEventListener('change', (e) => {
+    state.filters.sort = e.target.value;
+    renderReportsList();
+  });
   document.getElementById('filter-clear-btn')?.addEventListener('click', () => {
-    state.filters = { status: 'all', type: 'all', area: 'all' };
+    state.filters = { status: 'all', type: 'all', area: 'all', sort: 'upvotes' };
     const statusSelect = document.getElementById('filter-status');
     const typeSelect = document.getElementById('filter-type');
+    const sortSelect = document.getElementById('filter-sort');
     if (statusSelect) statusSelect.value = 'all';
     if (typeSelect) typeSelect.value = 'all';
+    if (sortSelect) sortSelect.value = 'upvotes';
 
     document.querySelectorAll('.locality-chip').forEach(c => {
       const isAll = c.dataset.area === 'all';
@@ -1571,14 +2018,48 @@ function bindEvents() {
   // ---- WASTE SORTING QUICK-CHECKER HELPER ----
   initSortingHelper();
 
+  // ---- GUIDE SEARCH CLEAR BUTTON ----
+  const guideSearchInput = document.getElementById('guide-search-input');
+  const guideSearchClear = document.getElementById('guide-search-clear');
+  if (guideSearchInput && guideSearchClear) {
+    guideSearchInput.addEventListener('input', () => {
+      guideSearchClear.classList.toggle('hidden', guideSearchInput.value.length === 0);
+    });
+    guideSearchClear.addEventListener('click', () => {
+      guideSearchInput.value = '';
+      helperSearchQuery = '';
+      guideSearchClear.classList.add('hidden');
+      renderSortingHelperResults();
+      guideSearchInput.focus();
+    });
+  }
+
   // ---- FORM BACK ----
   document.getElementById('form-back-btn')?.addEventListener('click', () => {
+    if (state.formDirty) {
+      const msg = state.lang === 'hi'
+        ? 'आपने जो डेटा भरा है वह सहेजा नहीं गया है। क्या आप वापस जाना चाहते हैं?'
+        : 'You have unsaved changes. Are you sure you want to go back?';
+      if (!confirm(msg)) return;
+    }
+    state.formDirty = false;
     showView('reports');
     renderReportsList();
   });
 
+  // ---- FORM DIRTY TRACKING ----
+  const reportForm = document.getElementById('report-form');
+  if (reportForm) {
+    reportForm.addEventListener('input', () => {
+      state.formDirty = true;
+    });
+    reportForm.addEventListener('change', () => {
+      state.formDirty = true;
+    });
+  }
+
   // ---- FORM SUBMISSION ----
-  document.getElementById('report-form')?.addEventListener('submit', submitReport);
+  reportForm?.addEventListener('submit', submitReport);
 
   // ---- FORM CHAR COUNT ----
   document.getElementById('f-desc')?.addEventListener('input', updateCharCount);
@@ -1634,33 +2115,138 @@ function bindEvents() {
     if (view === 'reports') renderReportsList();
     if (view === 'admin') renderAdminList();
   });
+
+  // ---- FORM DATA LOSS PREVENTION ----
+  window.addEventListener('beforeunload', (e) => {
+    if (state.formDirty && state.currentView === 'form') {
+      e.preventDefault();
+      // Standard way to trigger browser's "unsaved changes" dialog
+      e.returnValue = '';
+    }
+  });
+}
+
+/* =====================================================
+   PRELOADER CONTROLLER & LIFECYCLE
+   ===================================================== */
+
+let preloaderDismissed = false;
+
+function setPreloaderStatus(text) {
+  const statusEl = document.getElementById('preloader-status-text');
+  if (statusEl && text) {
+    statusEl.textContent = text;
+  }
+}
+
+function showPreloaderError(message, canContinueOffline = true) {
+  const loadingState = document.getElementById('preloader-loading-state');
+  const errorState = document.getElementById('preloader-error-state');
+  const errorDesc = document.getElementById('preloader-error-desc');
+  const offlineBtn = document.getElementById('preloader-offline-btn');
+
+  if (loadingState) loadingState.hidden = true;
+  if (errorState) errorState.hidden = false;
+  if (errorDesc && message) errorDesc.textContent = message;
+  if (offlineBtn) offlineBtn.style.display = canContinueOffline ? 'inline-flex' : 'none';
+}
+
+function hidePreloader() {
+  if (preloaderDismissed) return;
+  preloaderDismissed = true;
+  const preloader = document.getElementById('app-preloader');
+  if (!preloader) return;
+
+  preloader.classList.add('preloader-hidden');
+  preloader.setAttribute('aria-busy', 'false');
+
+  // Remove from accessibility tree after transition completes
+  setTimeout(() => {
+    preloader.hidden = true;
+    preloader.style.display = 'none';
+  }, 300);
 }
 
 /* =====================================================
    BOOTSTRAP
    ===================================================== */
 
+async function runBootSequence() {
+  const dict = i18n[state.lang] || i18n.en;
+  setPreloaderStatus(dict.preloader_connecting || 'Connecting to SQLite DBMS…');
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const minEntranceDelay = prefersReducedMotion ? 0 : 750;
+  const timerPromise = new Promise(resolve => setTimeout(resolve, minEntranceDelay));
+
+  try {
+    // 1. Detect backend (Express REST API / SQLite) with a 6-second safety timeout
+    const backendPromise = detectBackend();
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Connection timed out')), 6000));
+    
+    await Promise.race([backendPromise, timeoutPromise]).catch(err => {
+      console.warn('Backend detection timeout/fallback:', err.message);
+    });
+
+    setPreloaderStatus(dict.preloader_loading_reports || 'Loading community reports…');
+
+    // 2. Load reports from SQLite or localStorage
+    await Promise.race([
+      loadReports(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Reports fetch timed out')), 6000))
+    ]).catch(err => {
+      console.warn('Reports loading error:', err.message);
+    });
+
+    updateStats();
+    renderHomeRecent();
+
+    // 3. Route based on URL hash
+    const hash = window.location.hash.slice(1);
+    const validViews = ['home', 'reports', 'form', 'guide', 'confirm'];
+    const startView = validViews.includes(hash) ? hash : 'home';
+    showView(startView, false);
+
+    if (startView === 'reports') renderReportsList();
+
+    // Await visual entrance animation completion so the user enjoys the opening preloader
+    await timerPromise;
+
+    console.info(`CleanStreet: booted. Backend online: ${state.backendAvailable}. Reports: ${state.reports.length}`);
+
+    // Dismiss preloader smoothly
+    hidePreloader();
+  } catch (err) {
+    console.error('CleanStreet boot sequence error:', err);
+    showPreloaderError(dict.preloader_error_msg || 'Could not connect to backend server. You can continue in Local Mode or retry.', true);
+  }
+}
+
 async function init() {
+  const preloader = document.getElementById('app-preloader');
+  if (preloader) {
+    preloader.setAttribute('aria-busy', 'true');
+  }
+
+  // Preloader event listeners for retry and offline fallback
+  document.getElementById('preloader-retry-btn')?.addEventListener('click', async () => {
+    const loadingState = document.getElementById('preloader-loading-state');
+    const errorState = document.getElementById('preloader-error-state');
+    if (loadingState) loadingState.hidden = false;
+    if (errorState) errorState.hidden = true;
+    const dict = i18n[state.lang] || i18n.en;
+    setPreloaderStatus(dict.preloader_retrying || 'Reconnecting to database…');
+    await runBootSequence();
+  });
+
+  document.getElementById('preloader-offline-btn')?.addEventListener('click', () => {
+    hidePreloader();
+  });
+
   bindEvents();
   applyLang('en');
 
-  // Detect backend & load data
-  await detectBackend();
-  await loadReports();
-
-  updateStats();
-  renderHomeRecent();
-
-  // Route based on URL hash
-  const hash = window.location.hash.slice(1);
-  const validViews = ['home', 'reports', 'form', 'guide', 'admin', 'confirm'];
-  const startView = validViews.includes(hash) ? hash : 'home';
-  showView(startView, false);
-
-  if (startView === 'reports') renderReportsList();
-  if (startView === 'admin')   renderAdminList();
-
-  console.info(`CleanStreet: booted. Backend online: ${state.backendAvailable}. Reports loaded: ${state.reports.length}`);
+  await runBootSequence();
 }
 
 document.addEventListener('DOMContentLoaded', init);

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CleanStreet — Central System Administration &amp; Management Portal</title>
+  <link rel="icon" href="icon.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="admin.css" />
+  <style>
+    /* Admin specific enhanced styles */
+    .admin-bulk-bar {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 0.85rem 1.25rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .admin-bulk-left {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+    .admin-bulk-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .btn-bulk {
+      padding: 0.45rem 0.85rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      border-radius: 6px;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      color: #1e293b;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.15s ease;
+    }
+    .btn-bulk:hover:not(:disabled) {
+      background: #e2e8f0;
+      border-color: #94a3b8;
+    }
+    .btn-bulk-confirm {
+      background: #0284c7;
+      color: #ffffff;
+      border-color: #0284c7;
+    }
+    .btn-bulk-confirm:hover:not(:disabled) {
+      background: #0369a1;
+    }
+    .btn-bulk-resolve {
+      background: #16a34a;
+      color: #ffffff;
+      border-color: #16a34a;
+    }
+    .btn-bulk-resolve:hover:not(:disabled) {
+      background: #15803d;
+    }
+    .btn-bulk:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .report-select-checkbox {
+      width: 18px;
+      height: 18px;
+      accent-color: #0284c7;
+      cursor: pointer;
+    }
+    .badge-admin-verified {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      background: #e0f2fe;
+      color: #0369a1;
+      border: 1px solid #bae6fd;
+    }
+  </style>
+</head>
+<body class="admin-body">
+
+  <!-- ===== ACCESSIBLE APPLICATION PRELOADER ===== -->
+  <div id="app-preloader" class="app-preloader" role="status" aria-live="polite" aria-label="Loading CleanStreet Admin Console">
+    <div class="preloader-card">
+      <div class="preloader-brand">
+        <div class="preloader-leaf-wrap" aria-hidden="true">
+          <svg class="preloader-leaf-svg" viewBox="0 0 48 48" width="48" height="48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="24" cy="24" r="21" class="preloader-ring-bg" />
+            <circle cx="24" cy="24" r="21" class="preloader-ring-pulse" />
+            <path d="M24 10C24 10 14 16 14 26C14 31.5228 18.4772 36 24 36C29.5228 36 34 31.5228 34 26C34 16 24 10 24 10Z" fill="var(--primary, #002d17)" opacity="0.12"/>
+            <path d="M24 12C24 12 16 17.5 16 25.5C16 29.9183 19.5817 33.5 24 33.5C28.4183 33.5 32 29.9183 32 25.5C32 17.5 24 12 24 12Z" fill="var(--secondary, #006c49)"/>
+            <path d="M24 33.5V17C24 17 21 21 19 23M24 24C26.5 22.5 29 22 29 22" stroke="#ffffff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="preloader-brand-text">
+          <span class="preloader-title">CleanStreet</span>
+          <span class="preloader-subtitle">Central Admin Console</span>
+        </div>
+      </div>
+      <div class="preloader-loader-state" id="preloader-loading-state">
+        <div class="preloader-track" aria-hidden="true">
+          <div class="preloader-bar"></div>
+        </div>
+        <p class="preloader-status-msg" id="preloader-status-text">Loading System Management Console…</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== ADMIN ACCESS GATE MODAL ==================== -->
+  <div id="auth-gate-modal" class="auth-gate-modal" role="dialog" aria-modal="true" aria-labelledby="gate-title">
+    <div class="auth-gate-card">
+      <div class="auth-gate-icon" aria-hidden="true">⚙️</div>
+      <h1 id="gate-title" class="auth-gate-title">Central Administrator Portal</h1>
+      <p class="auth-gate-sub">Restricted municipal system administration console for tracking, status changes, and cloud database operations.</p>
+      
+      <form id="auth-gate-form" class="auth-gate-form" novalidate>
+        <label for="auth-passcode" class="sr-only">Enter Administrator Passcode</label>
+        <input type="password" id="auth-passcode" class="auth-passcode-input" placeholder="••••••••" required autocomplete="current-password" autofocus />
+        <button type="submit" class="btn-gate-submit">Unlock Admin Console</button>
+      </form>
+      <p class="auth-gate-hint">Administrator Passcode: <code>cleanstreet2026</code></p>
+    </div>
+  </div>
+
+  <!-- ==================== ADMIN TOP NAVBAR ==================== -->
+  <header class="admin-navbar" role="banner">
+    <div class="admin-nav-inner">
+      <div class="admin-brand">
+        <span class="admin-brand-icon" aria-hidden="true">🏛️</span>
+        <div>
+          <h1 class="admin-brand-title">
+            CleanStreet Administration
+            <span class="authority-pill" style="background:#e0f2fe;color:#0369a1;">Central Admin</span>
+          </h1>
+          <p class="admin-brand-sub">Executive Oversight, Status Master Control &amp; Cloud Database</p>
+        </div>
+      </div>
+
+      <div class="admin-nav-controls">
+        <div class="auto-refresh-pill" id="auto-refresh-status" title="Live status updates active">
+          <span class="auto-refresh-dot" aria-hidden="true"></span>
+          <span>Live Sync (10s)</span>
+        </div>
+        <button class="btn btn-outline btn-sm" id="btn-refresh-data" style="color:#fff;border-color:rgba(255,255,255,0.3);">
+          ↻ Refresh
+        </button>
+        <a href="/authority" class="btn btn-outline btn-sm" style="color:#38bdf8;border-color:rgba(56,189,248,0.4);text-decoration:none;">
+          🛡️ Field Desk ↗
+        </a>
+        <a href="/" target="_blank" class="btn btn-outline btn-sm" style="color:#fff;border-color:rgba(255,255,255,0.3);text-decoration:none;">
+          Public App ↗
+        </a>
+        <button class="btn btn-text btn-sm" id="btn-lock-session" style="color:#94a3b8;" title="Lock Admin Console">
+          🔒 Lock
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN ADMIN CONSOLE ==================== -->
+  <main class="admin-main-wrap">
+
+    <!-- Prototype Administrative Notice -->
+    <div class="privacy-notice-box" role="note" style="margin-bottom:1.25rem;">
+      <span aria-hidden="true">💡</span>
+      <div>
+        <strong>Administrative Prototype Notice:</strong> CleanStreet is a civic tech prototype. Actions performed here manage the local SQLite database and demonstration cloud sink. They are not connected to real-world municipal infrastructure or city workers.
+      </div>
+    </div>
+
+    <!-- Executive Metrics Grid -->
+    <section class="admin-metrics-grid" aria-label="Administrative KPI Statistics">
+      <div class="admin-stat-card stat-total">
+        <span class="admin-stat-num" id="metric-total">0</span>
+        <span class="admin-stat-label">Total System Reports</span>
+      </div>
+      <div class="admin-stat-card stat-new">
+        <span class="admin-stat-num" id="metric-new">0</span>
+        <span class="admin-stat-label">Pending / Unconfirmed</span>
+      </div>
+      <div class="admin-stat-card stat-progress">
+        <span class="admin-stat-num" id="metric-progress">0</span>
+        <span class="admin-stat-label">Confirmed &amp; Dispatched</span>
+      </div>
+      <div class="admin-stat-card stat-resolved">
+        <span class="admin-stat-num" id="metric-resolved">0</span>
+        <span class="admin-stat-label">Resolved &amp; Cleared</span>
+      </div>
+    </section>
+
+
+    <!-- ADMIN BULK ACTION TOOLBAR -->
+    <div class="admin-bulk-bar" aria-label="Bulk Report Actions">
+      <div class="admin-bulk-left">
+        <label style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;font-weight:700;color:#1e293b;cursor:pointer;">
+          <input type="checkbox" id="bulk-select-all" class="report-select-checkbox" />
+          <span>Select All</span>
+        </label>
+        <span id="bulk-selected-count" style="font-size:0.82rem;color:#64748b;">(0 selected)</span>
+      </div>
+
+      <div class="admin-bulk-actions">
+        <button type="button" class="btn-bulk btn-bulk-confirm" id="btn-bulk-confirm-action" disabled>
+          <span>⚡</span> Confirm &amp; Mark In Progress
+        </button>
+        <button type="button" class="btn-bulk btn-bulk-resolve" id="btn-bulk-resolve-action" disabled>
+          <span>✓</span> Mark Resolved
+        </button>
+        <button type="button" class="btn-bulk" id="btn-export-csv" title="Export all complaints as CSV for municipal archives">
+          <span>📥</span> Export CSV
+        </button>
+        <button type="button" class="btn-bulk" id="btn-admin-purge-all" title="Permanently delete all reports across the system and clear user page" style="background:#fee2e2;color:#b91c1c;border-color:#fca5a5;">
+          <span>🗑</span> Clear All Data (Purge Database)
+        </button>
+      </div>
+    </div>
+
+    <!-- Toolbar Filters -->
+    <section class="admin-toolbar" aria-label="Complaint Filters">
+      <div class="admin-filter-group">
+        <label for="filter-authority-status" class="sr-only">Filter by Status</label>
+        <select id="filter-authority-status" class="admin-select">
+          <option value="all">All Statuses</option>
+          <option value="new">🔵 New (Unconfirmed)</option>
+          <option value="inprogress">🟡 In Progress (Confirmed)</option>
+          <option value="resolved">🟢 Resolved (Cleared)</option>
+        </select>
+
+        <label for="filter-authority-type" class="sr-only">Filter by Issue Type</label>
+        <select id="filter-authority-type" class="admin-select">
+          <option value="all">All Issue Categories</option>
+          <option value="overflow">🗑 Overflowing Bin</option>
+          <option value="missed">🚛 Missed Pickup</option>
+          <option value="dumping">⚠️ Illegal Dumping</option>
+          <option value="drain">🌊 Blocked Drain</option>
+          <option value="other">📋 Other Issue</option>
+        </select>
+
+        <label for="search-authority-query" class="sr-only">Search Location</label>
+        <input type="text" id="search-authority-query" class="admin-search-input" placeholder="Search locality, street, or description…" autocomplete="off" />
+      </div>
+
+      <div style="font-size:.85rem;color:#64748b;" id="filter-count-badge">
+        Showing 0 complaints
+      </div>
+    </section>
+
+    <!-- Complaints Action List -->
+    <section class="admin-cards-list" id="authority-reports-list" aria-label="Complaints Management List">
+      <!-- Populated via admin.js -->
+    </section>
+
+    <!-- Empty State -->
+    <div id="authority-empty-state" class="empty-state hidden" style="background:#fff;border-radius:12px;padding:3rem 1.5rem;text-align:center;border:1px solid #e2e8f0;margin-top:1rem;">
+      <div style="font-size:3rem;margin-bottom:0.75rem;">📋</div>
+      <h3 style="margin:0 0 .5rem 0;color:#0f172a;">No complaints matching current filters</h3>
+      <p style="margin:0;color:#64748b;font-size:.9rem;">All neighbourhood reports are either cleared or no submissions match your search.</p>
+    </div>
+
+  </main>
+
+  <!-- Photo Lightbox Modal -->
+  <div id="photo-modal" class="auth-gate-modal hidden" role="dialog" aria-modal="true" style="background:rgba(0,0,0,0.85);cursor:pointer;">
+    <div style="max-width:90vw;max-height:90vh;display:flex;align-items:center;justify-content:center;">
+      <img id="modal-photo-img" src="" alt="Enlarged complaint photo" style="max-width:100%;max-height:85vh;border-radius:10px;box-shadow:0 20px 25px -5px rgba(0,0,0,0.5);" />
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+  <script src="admin.js"></script>
+</body>
+</html>

@@ -26,3 +26,5 @@ Thumbs.db
 # Logs
 *.log
 npm-debug.log*
+testsprite_tests/tmp/
+testsprite_tests/tmp/config.json
