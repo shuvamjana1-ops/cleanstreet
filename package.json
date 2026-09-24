@@ -1,0 +1,19 @@
+{
+  "name": "hacktober",
+  "version": "1.0.0",
+  "description": "**A mobile-friendly civic web app for reporting local waste issues and finding waste-sorting guidance.** Built for Hacktober 2026 — a beginner-friendly hackathon prototype targeting Indian neighbourhood use cases.",
+  "main": "app.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "multer": "^2.4.0"
+  }
+}

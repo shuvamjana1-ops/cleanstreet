@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Environment variables
+.env
+
+# MCP config (contains API keys)
+mcp_config.json
+
+# Database files
+*.db
+*.db-shm
+*.db-wal
+
+# Uploads
+uploads/
+
+# IDE / Editor
+.vscode/
+.agents/
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*

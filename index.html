@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CleanStreet – Report Local Waste Issues</title>
+  <meta name="description" content="CleanStreet helps residents of Indian neighbourhoods report local waste issues and find waste-sorting guidance. A civic hackathon prototype." />
+  <link rel="icon" href="icon.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ===== SKIP LINK (accessibility) ===== -->
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<!-- ===== APP SHELL ===== -->
+<div id="app">
+
+  <!-- HEADER / NAV -->
+  <header class="app-header" role="banner">
+    <div class="container header-inner">
+      <a href="#" class="logo" id="nav-home" aria-label="CleanStreet Home">
+        <span class="logo-icon" aria-hidden="true">🌿</span>
+        <span class="logo-text">CleanStreet</span>
+      </a>
+      <nav class="top-nav" aria-label="Primary navigation">
+        <button class="nav-btn active" id="nav-btn-home" data-view="home" aria-current="page">Home</button>
+        <button class="nav-btn" id="nav-btn-reports" data-view="reports">Reports</button>
+        <button class="nav-btn" id="nav-btn-guide" data-view="guide">Sorting Guide</button>
+        <button class="nav-btn nav-btn-admin" id="nav-btn-admin" data-view="admin" title="Demo admin panel">⚙ Admin</button>
+      </nav>
+      <div class="header-controls">
+        <div class="db-status-pill" id="db-status-pill" title="Backend & Database status" role="status" aria-live="polite">
+          <span class="db-dot"></span>
+          <span class="db-text" id="db-status-text">SQLite Online</span>
+        </div>
+        <div class="lang-toggle" role="group" aria-label="Language">
+          <button class="lang-btn active" id="lang-en" data-lang="en" aria-pressed="true">EN</button>
+          <button class="lang-btn" id="lang-hi" data-lang="hi" aria-pressed="false">हि</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT AREA -->
+  <main id="main-content">
+
+    <!-- ==================== HOME VIEW ==================== -->
+    <section id="view-home" class="view active" aria-label="Home">
+      <div class="hero">
+        <div class="container hero-inner">
+          <div class="hero-text">
+            <p class="hero-eyebrow" data-i18n="hero_eyebrow">Civic Hackathon Prototype 🏆</p>
+            <h1 data-i18n="hero_h1">Clean Streets Start<br>With <em>You</em></h1>
+            <p class="hero-sub" data-i18n="hero_sub">Report overflowing bins, missed pickups, and dumping spots in your neighbourhood — right from your phone.</p>
+            <div class="hero-actions">
+              <button class="btn btn-primary btn-lg" id="hero-report-btn" data-i18n="hero_report_cta">📸 Report an Issue</button>
+              <button class="btn btn-outline btn-lg" id="hero-guide-btn" data-i18n="hero_guide_cta">🗑 Sorting Guide</button>
+            </div>
+          </div>
+          <div class="hero-stats" aria-label="Demo statistics">
+            <div class="stat-card">
+              <span class="stat-num" id="stat-total">0</span>
+              <span class="stat-label" data-i18n="stat_total">Total Reports</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-num" id="stat-resolved">0</span>
+              <span class="stat-label" data-i18n="stat_resolved">Resolved</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-num" id="stat-inprogress">0</span>
+              <span class="stat-label" data-i18n="stat_inprogress">In Progress</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HOW IT WORKS -->
+      <div class="how-section">
+        <div class="container">
+          <h2 class="section-title" data-i18n="how_title">How It Works</h2>
+          <div class="steps-grid">
+            <div class="step-card">
+              <div class="step-icon" aria-hidden="true">📍</div>
+              <h3 data-i18n="step1_title">Choose a Location</h3>
+              <p data-i18n="step1_desc">Tell us which locality, lane, or landmark needs attention.</p>
+            </div>
+            <div class="step-card">
+              <div class="step-icon" aria-hidden="true">🗒</div>
+              <h3 data-i18n="step2_title">Describe the Issue</h3>
+              <p data-i18n="step2_desc">Select the issue type and add a short description. A photo helps too.</p>
+            </div>
+            <div class="step-card">
+              <div class="step-icon" aria-hidden="true">✅</div>
+              <h3 data-i18n="step3_title">Track the Status</h3>
+              <p data-i18n="step3_desc">See your report go from New → In Progress → Resolved.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECENT REPORTS PREVIEW -->
+      <div class="recent-section">
+        <div class="container">
+          <div class="section-header-row">
+            <h2 class="section-title" data-i18n="recent_title">Recent Reports</h2>
+            <button class="btn btn-text" id="home-view-all-btn" data-i18n="view_all">View all →</button>
+          </div>
+          <div class="reports-grid" id="home-recent-list" aria-live="polite">
+            <!-- populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- DISCLAIMER BANNER -->
+      <div class="disclaimer-banner">
+        <div class="container">
+          <p>⚠️ <strong data-i18n="disclaimer_label">Demo Notice:</strong> <span data-i18n="disclaimer_text">This is a hackathon prototype. No reports are sent to any municipality. All data is stored in your browser only.</span></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== REPORTS VIEW ==================== -->
+    <section id="view-reports" class="view" aria-label="Reports">
+      <div class="container">
+        <div class="page-header">
+          <h1 data-i18n="reports_h1">All Reports</h1>
+          <button class="btn btn-primary" id="reports-new-btn" data-i18n="new_report_btn">+ New Report</button>
+        </div>
+
+        <!-- NEIGHBOURHOOD & ISSUE OVERVIEW DASHBOARD -->
+        <div class="overview-dashboard-card" role="region" aria-label="Neighbourhood and issue overview">
+          <div class="overview-header">
+            <div>
+              <h2 class="overview-title" data-i18n="overview_title">Neighbourhood &amp; Issue Overview</h2>
+              <p class="overview-sub" data-i18n="overview_sub">Explore reports by locality or issue breakdown (Live SQLite demo analytics)</p>
+            </div>
+            <span class="prototype-badge" data-i18n="overview_badge">📊 Prototype Data</span>
+          </div>
+
+          <!-- Locality Quick Filter Chips -->
+          <div class="locality-chips-wrap">
+            <span class="locality-label" data-i18n="locality_label">Localities:</span>
+            <div class="locality-chips" id="locality-chips" role="radiogroup" aria-label="Filter by locality">
+              <button type="button" class="locality-chip active" data-area="all" aria-checked="true">All Areas</button>
+              <button type="button" class="locality-chip" data-area="Mumbai" aria-checked="false">📍 Mumbai</button>
+              <button type="button" class="locality-chip" data-area="Bengaluru" aria-checked="false">📍 Bengaluru</button>
+              <button type="button" class="locality-chip" data-area="Delhi" aria-checked="false">📍 Delhi</button>
+              <button type="button" class="locality-chip" data-area="Noida" aria-checked="false">📍 Noida</button>
+              <button type="button" class="locality-chip" data-area="Pune" aria-checked="false">📍 Pune</button>
+              <button type="button" class="locality-chip" data-area="Kolkata" aria-checked="false">📍 Kolkata</button>
+            </div>
+          </div>
+
+          <!-- Issue Distribution Bar -->
+          <div class="issue-distribution-wrap">
+            <div class="dist-header">
+              <span class="dist-label" data-i18n="dist_label">Issue Breakdown:</span>
+              <span class="dist-count-total" id="dist-total-count">0 Reports</span>
+            </div>
+            <div class="issue-dist-bar" id="issue-dist-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" aria-label="Issue type distribution">
+              <!-- Rendered via JS -->
+            </div>
+            <div class="issue-dist-legend" id="issue-dist-legend">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- FILTERS -->
+        <div class="filters-bar" role="group" aria-label="Filter reports">
+          <label class="filter-label" for="filter-status" data-i18n="filter_status">Status:</label>
+          <select id="filter-status" class="filter-select">
+            <option value="all">All Statuses</option>
+            <option value="new">New</option>
+            <option value="inprogress">In Progress</option>
+            <option value="resolved">Resolved</option>
+          </select>
+          <label class="filter-label" for="filter-type" data-i18n="filter_type">Issue Type:</label>
+          <select id="filter-type" class="filter-select">
+            <option value="all">All Types</option>
+            <option value="overflow">Overflowing Bin</option>
+            <option value="missed">Missed Pickup</option>
+            <option value="dumping">Illegal Dumping</option>
+            <option value="drain">Blocked Drain</option>
+            <option value="other">Other</option>
+          </select>
+          <button class="btn btn-outline btn-sm" id="filter-clear-btn" data-i18n="clear_filters">Clear</button>
+        </div>
+
+        <div id="reports-list" class="reports-list" aria-live="polite" aria-label="Reports list">
+          <!-- populated by JS -->
+        </div>
+
+        <div id="reports-empty" class="empty-state hidden" role="status">
+          <div class="empty-icon" aria-hidden="true">🗂</div>
+          <p data-i18n="reports_empty_title">No reports match your filters.</p>
+          <p class="empty-sub" data-i18n="reports_empty_sub">Try clearing the filters or submit a new report.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== REPORT FORM VIEW ==================== -->
+    <section id="view-form" class="view" aria-label="Submit a report">
+      <div class="container form-container">
+        <button class="back-btn" id="form-back-btn" aria-label="Go back">← Back</button>
+        <h1 data-i18n="form_h1">Report an Issue</h1>
+        <p class="page-subtitle" data-i18n="form_subtitle">All fields marked <span aria-label="required">*</span> are required.</p>
+
+        <form id="report-form" novalidate aria-label="Waste issue report form">
+          <div class="form-group">
+            <label for="f-type" class="form-label" data-i18n="f_type_label">Issue Type <span class="req" aria-hidden="true">*</span></label>
+            <select id="f-type" name="type" class="form-control" required aria-required="true">
+              <option value="" disabled selected data-i18n="f_type_placeholder">Select an issue type…</option>
+              <option value="overflow">🗑 Overflowing Bin / Dustbin</option>
+              <option value="missed">🚛 Missed Garbage Pickup</option>
+              <option value="dumping">⚠️ Illegal Dumping / Littering</option>
+              <option value="drain">🌊 Blocked Drain / Nala</option>
+              <option value="other">📋 Other Waste Issue</option>
+            </select>
+            <span class="field-error" id="err-type" role="alert" aria-live="polite"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="f-location" class="form-label" data-i18n="f_loc_label">Location / Locality <span class="req" aria-hidden="true">*</span></label>
+            <input type="text" id="f-location" name="location" class="form-control" placeholder="e.g. Near Gulab Chowk, Andheri West" required aria-required="true" maxlength="120" autocomplete="off" list="location-suggestions" />
+            <datalist id="location-suggestions">
+              <option value="Gulab Chowk, Andheri West, Mumbai"></option>
+              <option value="Sector 18, Noida, UP"></option>
+              <option value="Koramangala 6th Block, Bengaluru"></option>
+              <option value="New Alipore, Kolkata"></option>
+              <option value="Banjara Hills, Hyderabad"></option>
+              <option value="Aundh, Pune"></option>
+              <option value="Civil Lines, Delhi"></option>
+              <option value="Anna Nagar, Chennai"></option>
+            </datalist>
+            <span class="field-error" id="err-location" role="alert" aria-live="polite"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="f-desc" class="form-label" data-i18n="f_desc_label">Description <span class="form-optional">(optional)</span></label>
+            <textarea id="f-desc" name="description" class="form-control" rows="3" placeholder="Describe what you see. E.g. 'Bin near the pharmacy has been overflowing for 2 days.'" maxlength="400"></textarea>
+            <span class="char-count" id="desc-char-count" aria-live="polite">0 / 400</span>
+          </div>
+
+          <div class="form-group">
+            <label for="f-photo" class="form-label" data-i18n="f_photo_label">Photo <span class="form-optional">(optional)</span></label>
+            <div class="photo-upload-area" id="photo-drop-zone" role="button" tabindex="0" aria-label="Upload photo — click or drag and drop">
+              <input type="file" id="f-photo" name="photo" accept="image/*" capture="environment" class="photo-file-input" aria-label="Choose photo file" />
+              <div class="photo-upload-inner" id="photo-upload-inner">
+                <span class="photo-icon" aria-hidden="true">📷</span>
+                <p data-i18n="f_photo_prompt">Tap to take a photo or upload from gallery</p>
+                <p class="photo-note" data-i18n="f_photo_note">Stored locally in your browser. Not sent anywhere.</p>
+              </div>
+              <img id="photo-preview" class="photo-preview hidden" alt="Uploaded photo preview" />
+              <button type="button" class="photo-remove-btn hidden" id="photo-remove-btn" aria-label="Remove photo">✕ Remove photo</button>
+            </div>
+
+            <!-- Auto-Compression Status Card (≤ 200 KB) -->
+            <div id="form-compress-card" class="form-compress-card hidden" aria-live="polite">
+              <div class="f-comp-header">
+                <span class="f-comp-badge" id="form-comp-badge">⚡ Auto-compressed to ≤ 200 KB</span>
+                <span class="f-comp-savings" id="form-comp-savings">-0%</span>
+              </div>
+              <div class="f-comp-details">
+                <div class="f-comp-col">
+                  <span class="f-comp-label" data-i18n="comp_original">Original:</span>
+                  <span class="f-comp-val" id="form-comp-orig">--</span>
+                </div>
+                <div class="f-comp-col">
+                  <span class="f-comp-label" data-i18n="comp_compressed">Optimized:</span>
+                  <span class="f-comp-val highlight" id="form-comp-result">--</span>
+                </div>
+                <div class="f-comp-col">
+                  <span class="f-comp-label" data-i18n="comp_dimensions">Dimensions:</span>
+                  <span class="f-comp-val" id="form-comp-dims">--</span>
+                </div>
+              </div>
+              <p class="f-comp-note">✅ Compliant with civic portal upload limit (&le; 200 KB standard).</p>
+            </div>
+          </div>
+
+          <div class="form-footer">
+            <button type="submit" class="btn btn-primary btn-full" id="form-submit-btn" data-i18n="f_submit">Submit Report</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ==================== CONFIRM VIEW ==================== -->
+    <section id="view-confirm" class="view" aria-label="Report submitted">
+      <div class="container confirm-container">
+        <div class="confirm-icon" aria-hidden="true">✅</div>
+        <h1 data-i18n="confirm_h1">Report Submitted!</h1>
+        <p data-i18n="confirm_sub">Thank you for helping keep your neighbourhood clean. Your report has been saved.</p>
+        <div class="confirm-detail" id="confirm-detail-box"></div>
+        <p class="confirm-disclaimer" data-i18n="confirm_disclaimer">⚠️ This is a demo. No actual municipality has been notified.</p>
+        <div class="confirm-actions">
+          <button class="btn btn-primary" id="confirm-view-reports-btn" data-i18n="confirm_view_btn">View All Reports</button>
+          <button class="btn btn-outline" id="confirm-another-btn" data-i18n="confirm_another_btn">Report Another Issue</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== GUIDE VIEW ==================== -->
+    <section id="view-guide" class="view" aria-label="Waste Sorting Guide">
+      <div class="container">
+        <h1 data-i18n="guide_h1">Waste Sorting Guide</h1>
+        <p class="page-subtitle" data-i18n="guide_subtitle">Simple guidance for Indian households on sorting common waste into the right bin.</p>
+
+        <!-- INTERACTIVE WASTE-SORTING HELPER & SEARCH -->
+        <div class="sorting-helper-card" role="search" aria-label="Waste sorting helper">
+          <div class="helper-search-header">
+            <div>
+              <h2 class="helper-title" data-i18n="helper_title">🔍 Quick Item Checker</h2>
+              <p class="helper-sub" data-i18n="helper_sub">Type any item to instantly find which bin it belongs to:</p>
+            </div>
+            <span class="helper-disclaimer-pill" data-i18n="helper_disclaimer_pill">💡 Indicative Guidance</span>
+          </div>
+
+          <div class="search-input-wrap">
+            <span class="search-icon" aria-hidden="true">🔍</span>
+            <input type="text" id="guide-search-input" class="guide-search-input" placeholder="Search item (e.g. roti, plastic bottle, milk pouch, battery, medicine, paint)..." autocomplete="off" aria-label="Search waste item" />
+            <button type="button" id="guide-search-clear" class="search-clear-btn hidden" aria-label="Clear search">✕</button>
+          </div>
+
+          <!-- Category filter chips -->
+          <div class="guide-cat-chips" role="radiogroup" aria-label="Filter items by bin category">
+            <button type="button" class="guide-cat-chip active" data-cat="all" aria-checked="true">All Items (<span id="cat-count-all">0</span>)</button>
+            <button type="button" class="guide-cat-chip cat-wet" data-cat="wet" aria-checked="false">🟢 Wet (<span id="cat-count-wet">0</span>)</button>
+            <button type="button" class="guide-cat-chip cat-dry" data-cat="dry" aria-checked="false">🔵 Dry (<span id="cat-count-dry">0</span>)</button>
+            <button type="button" class="guide-cat-chip cat-ewaste" data-cat="ewaste" aria-checked="false">🔴 E-Waste (<span id="cat-count-ewaste">0</span>)</button>
+            <button type="button" class="guide-cat-chip cat-hazardous" data-cat="hazardous" aria-checked="false">⚫ Hazardous (<span id="cat-count-hazardous">0</span>)</button>
+          </div>
+
+          <!-- Live Search Results Grid (rendered by JS) -->
+          <div id="guide-search-results" class="guide-search-results" aria-live="polite">
+            <!-- Dynamically populated -->
+          </div>
+          <div id="guide-empty-search" class="guide-empty-search hidden" role="status">
+            <p data-i18n="guide_empty_msg">No matching items found. Try a simpler keyword like "bottle", "food", or "battery".</p>
+          </div>
+        </div>
+
+        <div class="guide-grid">
+
+          <!-- WET WASTE -->
+          <div class="guide-card wet" tabindex="0">
+            <div class="guide-card-header">
+              <span class="guide-emoji" aria-hidden="true">🟢</span>
+              <div>
+                <h2 data-i18n="guide_wet_title">Wet Waste</h2>
+                <p class="guide-subtitle-sm" data-i18n="guide_wet_sub">गीला कचरा / Green Bin</p>
+              </div>
+            </div>
+            <ul class="guide-list" aria-label="Examples of wet waste">
+              <li>🥕 Vegetable and fruit peels</li>
+              <li>🍚 Leftover cooked food, rice, sabzi</li>
+              <li>🌿 Garden leaves, grass clippings</li>
+              <li>☕ Tea leaves, coffee grounds</li>
+              <li>🥚 Egg shells</li>
+              <li>🌸 Flowers used in puja</li>
+              <li>🐾 Pet waste (bagged separately)</li>
+            </ul>
+            <div class="guide-tip">
+              <strong>💡 Tip:</strong> Keep in a separate container with a lid. Can be composted at home.
+            </div>
+          </div>
+
+          <!-- DRY WASTE -->
+          <div class="guide-card dry" tabindex="0">
+            <div class="guide-card-header">
+              <span class="guide-emoji" aria-hidden="true">🔵</span>
+              <div>
+                <h2 data-i18n="guide_dry_title">Dry Waste</h2>
+                <p class="guide-subtitle-sm" data-i18n="guide_dry_sub">सूखा कचरा / Blue Bin</p>
+              </div>
+            </div>
+            <ul class="guide-list" aria-label="Examples of dry waste">
+              <li>📰 Newspapers, magazines, cardboard</li>
+              <li>🍾 Glass bottles and jars (empty)</li>
+              <li>🥤 Plastic bottles, containers (rinsed)</li>
+              <li>🛍 Plastic bags and packaging</li>
+              <li>🥫 Tin cans, aluminium foil</li>
+              <li>👕 Old clothes and textiles (clean)</li>
+              <li>📦 Tetra packs (rinsed, flattened)</li>
+            </ul>
+            <div class="guide-tip">
+              <strong>💡 Tip:</strong> Rinse containers before discarding. Dry waste can be sold to the raddi-wala (scrap dealer).
+            </div>
+          </div>
+
+          <!-- E-WASTE -->
+          <div class="guide-card ewaste" tabindex="0">
+            <div class="guide-card-header">
+              <span class="guide-emoji" aria-hidden="true">🔴</span>
+              <div>
+                <h2 data-i18n="guide_ewaste_title">E-Waste</h2>
+                <p class="guide-subtitle-sm" data-i18n="guide_ewaste_sub">इलेक्ट्रॉनिक कचरा / Red Bin</p>
+              </div>
+            </div>
+            <ul class="guide-list" aria-label="Examples of e-waste">
+              <li>📱 Old mobile phones and chargers</li>
+              <li>💻 Laptops, tablets, hard drives</li>
+              <li>🔋 Batteries (AA, AAA, li-ion)</li>
+              <li>💡 CFL and LED bulbs</li>
+              <li>🖨 Printers, ink cartridges</li>
+              <li>📺 Old TVs, remote controls</li>
+              <li>🔌 Cables and extension cords</li>
+            </ul>
+            <div class="guide-tip">
+              <strong>💡 Tip:</strong> Never mix with regular bins. Find authorised e-waste collection centres via your city's municipal website.
+            </div>
+          </div>
+
+          <!-- HAZARDOUS / SANITARY -->
+          <div class="guide-card hazardous" tabindex="0">
+            <div class="guide-card-header">
+              <span class="guide-emoji" aria-hidden="true">⚫</span>
+              <div>
+                <h2 data-i18n="guide_haz_title">Hazardous &amp; Sanitary</h2>
+                <p class="guide-subtitle-sm" data-i18n="guide_haz_sub">हानिकारक कचरा / Black Bin</p>
+              </div>
+            </div>
+            <ul class="guide-list" aria-label="Examples of hazardous waste">
+              <li>🧴 Medicines and expired drugs</li>
+              <li>🎨 Leftover paint, solvents</li>
+              <li>🩺 Used bandages, syringes (needle caps on)</li>
+              <li>🧹 Used napkins, diapers, sanitary pads</li>
+              <li>🐀 Pesticide containers (triple-rinsed)</li>
+              <li>🧪 Cleaning chemicals and bleach bottles</li>
+            </ul>
+            <div class="guide-tip">
+              <strong>💡 Tip:</strong> Always double-bag sanitary waste. Medicines should be returned to a pharmacy if possible.
+            </div>
+          </div>
+
+        </div>
+
+        <!-- QUICK REFERENCE TABLE -->
+        <div class="guide-table-section">
+          <h2 data-i18n="guide_table_title">Quick Reference</h2>
+          <div class="table-scroll">
+          <table class="guide-table" aria-label="Waste sorting quick reference table">
+            <thead>
+              <tr>
+                <th scope="col">Item</th>
+                <th scope="col">Bin</th>
+                <th scope="col">Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Chapati / Roti (leftover)</td><td><span class="tag tag-wet">Wet</span></td><td>Composted / fed to animals</td></tr>
+              <tr><td>Milk packet (rinsed)</td><td><span class="tag tag-dry">Dry</span></td><td>Recyclable plastic</td></tr>
+              <tr><td>Old smartphone</td><td><span class="tag tag-ewaste">E-Waste</span></td><td>Authorised collection only</td></tr>
+              <tr><td>Broken glass</td><td><span class="tag tag-dry">Dry</span></td><td>Wrap in newspaper before discarding</td></tr>
+              <tr><td>Agarbatti ash</td><td><span class="tag tag-wet">Wet</span></td><td>Biodegradable</td></tr>
+              <tr><td>Used cooking oil</td><td><span class="tag tag-haz">Hazardous</span></td><td>Never pour down drain; contact oil recycler</td></tr>
+              <tr><td>Thermocol / Styrofoam</td><td><span class="tag tag-dry">Dry</span></td><td>Hard to recycle; reduce use</td></tr>
+              <tr><td>Expired medicines</td><td><span class="tag tag-haz">Hazardous</span></td><td>Return to pharmacy</td></tr>
+              <tr><td>Coconut shells</td><td><span class="tag tag-wet">Wet</span></td><td>Biodegradable</td></tr>
+              <tr><td>Old newspapers</td><td><span class="tag tag-dry">Dry</span></td><td>Sell to raddi-wala</td></tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== ADMIN VIEW ==================== -->
+    <section id="view-admin" class="view" aria-label="Admin panel">
+      <div class="container">
+        <div class="admin-banner" role="status">
+          <span aria-hidden="true">⚙️</span> <strong>Demo Admin Panel</strong> — This simulates how a municipal officer could update report statuses. Not a real system.
+        </div>
+        <h1 data-i18n="admin_h1">Admin: Manage Reports</h1>
+        <p class="page-subtitle" data-i18n="admin_sub">Change report statuses to demonstrate the workflow for hackathon judges.</p>
+
+        <div id="admin-list" class="admin-list" aria-live="polite">
+          <!-- populated by JS -->
+        </div>
+        <div id="admin-empty" class="empty-state hidden" role="status">
+          <div class="empty-icon" aria-hidden="true">📋</div>
+          <p>No reports yet. Submit one from the Reports tab.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="app-footer" role="contentinfo">
+    <div class="container footer-inner">
+      <p>🌿 <strong>CleanStreet</strong> — A hackathon prototype for civic tech. <span class="footer-disclaimer">No real data is collected or transmitted.</span></p>
+      <p class="footer-sub">Built with ❤️ for Hacktober 2026 · Data stored locally in browser</p>
+    </div>
+  </footer>
+
+</div><!-- /#app -->
+
+<!-- TOAST NOTIFICATION -->
+<div id="toast" class="toast hidden" role="alert" aria-live="assertive" aria-atomic="true"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
